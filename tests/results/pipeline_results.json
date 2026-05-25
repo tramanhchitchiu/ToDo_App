@@ -1,0 +1,59 @@
+{
+  "timestamp": "2026-05-26T00:19:58.176046",
+  "phase": "Main Pipeline",
+  "total_candidates": 41,
+  "groups_created": 10,
+  "groups": [
+    {
+      "id": "g_0001",
+      "context_label": "Project Alpha \u2014 Google OAuth2 Integration",
+      "task_count": 8
+    },
+    {
+      "id": "g_0002",
+      "context_label": "Payment Gateway \u2014 Bug Fix & Security Audit",
+      "task_count": 0
+    },
+    {
+      "id": "g_0003",
+      "context_label": "Database Migration \u2014 PostgreSQL 11 \u2192 14",
+      "task_count": 0
+    },
+    {
+      "id": "g_0004",
+      "context_label": "Platform Modernization \u2014 Cloud Migration",
+      "task_count": 3
+    },
+    {
+      "id": "g_0005",
+      "context_label": "AI Feature Development",
+      "task_count": 4
+    },
+    {
+      "id": "g_0006",
+      "context_label": "Security & Compliance \u2014 SOC 2 Initiative",
+      "task_count": 4
+    },
+    {
+      "id": "g_0007",
+      "context_label": "Q2 Hiring Plan",
+      "task_count": 3
+    },
+    {
+      "id": "g_0008",
+      "context_label": "Customer-Requested Platform Features",
+      "task_count": 3
+    },
+    {
+      "id": "g_0009",
+      "context_label": "Q2 QBR Follow-ups",
+      "task_count": 6
+    },
+    {
+      "id": "g_0010",
+      "context_label": "Standalone Engineering Tasks",
+      "task_count": 0
+    }
+  ],
+  "pipeline_status": "success"
+}

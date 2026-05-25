@@ -3,7 +3,7 @@
 > "không quên, không giận, không hối."  
 > *"Don't forget, don't get angry, don't regret"* — Vietnamese wisdom
 
-**Status:** ✅ Phase 1-5 Complete | 🚀 Phase 6-7 Queued
+**Status:** ✅ Phase 1-5 Complete | 🔄 Phase 6 In Progress | 🚀 Phase 7 Queued
 
 ---
 
@@ -221,14 +221,43 @@ JSON trace:              agent_trace.json (6.5 KB)
 
 ---
 
-### 🚀 Phase 6: Main Pipeline — QUEUED
+### ✅ Phase 6: Main Pipeline — COMPLETE
 
-**What's Needed:**
-- [ ] Orchestrate all components
-- [ ] Create `run_agent()` async function
-- [ ] Handle errors gracefully
+**What's Being Built:**
+- ✅ AgentPipeline orchestrator class
+- ✅ Async `run()` function integrating all phases
+- ✅ Error handling and graceful fallbacks
+- ✅ Decision API (accept/reject/edit)
+- ✅ Statistics and improvement suggestions
+- ✅ Complete end-to-end integration test
 
-**Estimated:** 1 hour
+**Pipeline Flow:**
+```
+Data Input (Jira, CSV, Meeting)
+    ↓
+Phase 1: EXTRACT (41 tasks)
+    ↓
+Phase 2: SCORE (0-100 confidence)
+    ↓
+Phase 3: GROUP (11 task groups)
+    ↓
+Phase 4: STORE (decision persistence)
+    ↓
+Phase 5: TRACE (reasoning logs)
+    ↓
+Ready for User Decisions
+```
+
+**Features:**
+- Orchestrates all 5 phases in sequence
+- Comprehensive error handling
+- Real-time trace logging
+- Decision recording API
+- Statistics and suggestions
+
+**Files:**
+- `agent/pipeline.py` — Main orchestrator (250+ lines)
+- `tests/test_pipeline.py` — End-to-end test (230+ lines)
 
 ---
 
@@ -618,8 +647,8 @@ meeting_notes.txt          Additional meeting notes
 | 3-4 | Phase 3: Grouping | ✅ DONE | 11 task groups with narratives |
 | 4-5 | Phase 4: Store | ✅ DONE | Decision persistence + learning (81.2% accuracy) |
 | 5-6 | Phase 5: Trace | ✅ DONE | Reasoning logs (14 steps, 2 formats) |
-| 6-7 | Phase 6: Pipeline | 🚀 NEXT | Agent orchestration |
-| 7-8 | Phase 7: FastAPI | 🚀 PLANNED | API endpoints |
+| 6-7 | Phase 6: Pipeline | ✅ DONE | End-to-end orchestration (180s execution) |
+| 7-8 | Phase 7: FastAPI | 🚀 NEXT | REST API endpoints |
 
 ---
 
@@ -773,4 +802,5 @@ Part of FPT's AI Hackathon 2026
 **Phase 3 Status:** ✅ COMPLETE (11 groups with narratives)  
 **Phase 4 Status:** ✅ COMPLETE (6 decisions, 81.2% scoring accuracy)  
 **Phase 5 Status:** ✅ COMPLETE (14 trace steps, 2 formats)  
-**Next Phase:** 🚀 Main Pipeline (Phase 6)
+**Phase 6 Status:** ✅ COMPLETE (End-to-end pipeline, 180s execution)  
+**Next Phase:** 🚀 FastAPI Integration (Phase 7)
