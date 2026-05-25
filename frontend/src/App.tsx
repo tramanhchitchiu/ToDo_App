@@ -119,7 +119,7 @@ function App() {
       {page === 'confirm'        && (
         <ConfirmTasks
           groups={agentGroups}
-          onSubmit={() => { setPendingCount(0); setPage('dashboard'); }}
+          onSubmit={() => { setPendingCount(0); setAgentGroups([]); setPage('dashboard'); }}
         />
       )}
       {page === 'briefing'       && <Briefing />}
