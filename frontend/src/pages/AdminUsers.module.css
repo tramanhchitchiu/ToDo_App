@@ -1,0 +1,448 @@
+.layout {
+  display: grid;
+  grid-template-columns: 60fr 40fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* ─── Table header row ───────────────────────────── */
+
+.colHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.colTitle {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.inviteBtn {
+  height: 32px;
+  padding: 0 14px;
+  background: #F26522;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: Inter, system-ui, sans-serif;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.inviteBtn:hover { background: #d9581e; }
+
+/* ─── Search bar ─────────────────────────────────── */
+
+.searchWrap {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  color: var(--color-text-faint);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  height: 36px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text-primary);
+  font-size: 13px;
+  font-family: Inter, system-ui, sans-serif;
+  padding: 0 12px 0 32px;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.searchInput:focus { border-color: #F26522; }
+.searchInput::placeholder { color: var(--color-text-faint); }
+
+/* ─── User table ─────────────────────────────────── */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.thead th {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  padding: 0 12px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.thead th:last-child { text-align: right; }
+
+.tbody tr {
+  border-bottom: 1px solid var(--color-border-subtle);
+  transition: background 0.1s;
+  cursor: pointer;
+}
+
+.tbody tr:last-child { border-bottom: none; }
+.tbody tr:hover { background: var(--hover-row); }
+
+.tbody td {
+  padding: 12px;
+  font-size: 13px;
+  color: var(--color-text-primary);
+  vertical-align: middle;
+}
+
+.tbody td:last-child { text-align: right; }
+
+/* User cell */
+.userCell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+  color: #fff;
+}
+
+.userName {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.userEmail {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+/* Role badge */
+.roleBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Status dot */
+.statusCell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Actions */
+.actionBtn {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  font-weight: 500;
+  font-family: Inter, system-ui, sans-serif;
+  cursor: pointer;
+  padding: 4px 9px;
+  transition: border-color 0.1s, color 0.1s;
+  margin-left: 6px;
+}
+
+.actionBtn:hover { border-color: var(--color-text-secondary); color: var(--color-text-primary); }
+
+.removeActionBtn {
+  background: none;
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: 6px;
+  color: #EF4444;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: Inter, system-ui, sans-serif;
+  cursor: pointer;
+  padding: 4px 9px;
+  transition: background 0.1s;
+  margin-left: 6px;
+}
+
+.removeActionBtn:hover { background: rgba(239,68,68,0.08); }
+
+/* ─── Right column panels ────────────────────────── */
+
+.panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.panelTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 16px 0;
+}
+
+/* Stat grid */
+.statGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.statCard {
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 14px;
+  text-align: center;
+}
+
+.statValue {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.statLabel {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Role distribution */
+.roleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+  font-size: 13px;
+}
+
+.roleRow:last-child { border-bottom: none; }
+
+.roleRowLabel { color: var(--color-text-primary); }
+.roleRowCount { color: var(--color-text-secondary); font-weight: 600; }
+
+/* Audit log */
+.auditList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.auditEntry {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.auditDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-border);
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.auditText {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.auditActor { color: var(--color-text-primary); font-weight: 600; }
+.auditTime  { color: var(--color-text-faint); }
+
+/* ─── Invite / Edit modal ────────────────────────── */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--color-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.modal {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 24px;
+  width: 400px;
+  box-shadow: var(--shadow-modal);
+}
+
+.modalTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 18px 0;
+}
+
+.formGroup { margin-bottom: 14px; }
+
+.formLabel {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  margin-bottom: 6px;
+}
+
+.formInput {
+  width: 100%;
+  height: 38px;
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text-primary);
+  font-size: 13px;
+  font-family: Inter, system-ui, sans-serif;
+  padding: 0 12px;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.formInput:focus { border-color: #F26522; }
+.formInput::placeholder { color: var(--color-text-faint); }
+
+.formSelect {
+  width: 100%;
+  height: 38px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text-primary);
+  font-size: 13px;
+  font-family: Inter, system-ui, sans-serif;
+  padding: 0 32px 0 12px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%239CA3AF' d='M5 7L0.5 2.5h9z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-color: var(--color-input-bg);
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.formSelect:focus { border-color: #F26522; }
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modalCancelBtn {
+  height: 36px;
+  padding: 0 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: Inter, system-ui, sans-serif;
+  cursor: pointer;
+  transition: border-color 0.1s, color 0.1s;
+}
+
+.modalCancelBtn:hover { border-color: var(--color-text-secondary); color: var(--color-text-primary); }
+
+.modalSaveBtn {
+  height: 36px;
+  padding: 0 16px;
+  background: #F26522;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: Inter, system-ui, sans-serif;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.modalSaveBtn:hover { background: #d9581e; }
+
+/* ─── Remove confirm modal ───────────────────────── */
+
+.removeModal {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 28px 24px;
+  width: 360px;
+  box-shadow: var(--shadow-modal);
+  text-align: center;
+}
+
+.removeModalIcon  { font-size: 28px; margin-bottom: 10px; }
+.removeModalTitle { font-size: 16px; font-weight: 700; color: var(--color-text-primary); margin: 0 0 8px; }
+.removeModalText  { font-size: 13px; color: var(--color-text-secondary); margin: 0 0 20px; line-height: 1.5; }
+.removeModalActions { display: flex; justify-content: center; gap: 10px; }
+
+.removeConfirmBtn {
+  height: 36px;
+  padding: 0 16px;
+  background: #EF4444;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: Inter, system-ui, sans-serif;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.removeConfirmBtn:hover { background: #dc2626; }

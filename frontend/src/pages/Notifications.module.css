@@ -1,0 +1,368 @@
+.layout {
+  display: grid;
+  grid-template-columns: 60fr 40fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* ─── Section titles ─────────────────────────────── */
+
+.section {
+  margin-bottom: 28px;
+}
+
+.sectionTitle {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--color-text-muted);
+  margin: 0 0 12px 0;
+}
+
+/* ─── Channel cards ──────────────────────────────── */
+
+.channelList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.channelCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.channelIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.channelInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.channelName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 2px;
+}
+
+.channelDesc {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.channelActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.configureBtn {
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: Inter, system-ui, sans-serif;
+  cursor: pointer;
+  transition: border-color 0.1s, color 0.1s;
+}
+
+.configureBtn:hover { border-color: var(--color-text-secondary); color: var(--color-text-primary); }
+
+/* Toggle */
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.toggle input { opacity: 0; width: 0; height: 0; }
+
+.toggleSlider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: var(--color-border);
+  border-radius: 22px;
+  transition: 0.2s;
+}
+
+.toggleSlider::before {
+  content: '';
+  position: absolute;
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: 0.2s;
+}
+
+.toggle input:checked + .toggleSlider { background: #F26522; }
+.toggle input:checked + .toggleSlider::before { transform: translateX(18px); }
+
+/* ─── Event rules ────────────────────────────────── */
+
+.ruleList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ruleRow {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.ruleRow:last-child { border-bottom: none; }
+
+.ruleLabel {
+  flex: 1;
+  font-size: 13px;
+  color: var(--color-text-primary);
+}
+
+.ruleDesc {
+  display: block;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.ruleToggles {
+  display: flex;
+  gap: 18px;
+  flex-shrink: 0;
+}
+
+.ruleToggleCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 40px;
+}
+
+.ruleToggleHeader {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+/* ─── Right panel: digest & quiet hours ─────────── */
+
+.panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.panelTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 16px 0;
+}
+
+.fieldGroup { margin-bottom: 14px; }
+
+.fieldLabel {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  margin-bottom: 6px;
+}
+
+.fieldSelect {
+  width: 100%;
+  height: 36px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text-primary);
+  font-size: 13px;
+  font-family: Inter, system-ui, sans-serif;
+  padding: 0 32px 0 12px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%239CA3AF' d='M5 7L0.5 2.5h9z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-color: var(--color-input-bg);
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.fieldSelect:focus { border-color: #F26522; }
+
+.timeRow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.timeRow .fieldSelect { flex: 1; }
+
+.timeSep {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.toggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 36px;
+}
+
+.toggleLabel { font-size: 13px; color: var(--color-text-primary); }
+
+.saveBtn {
+  width: 100%;
+  height: 38px;
+  background: #F26522;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: Inter, system-ui, sans-serif;
+  cursor: pointer;
+  transition: background 0.1s;
+  margin-top: 4px;
+}
+
+.saveBtn:hover { background: #d9581e; }
+
+.savedMsg {
+  font-size: 12px;
+  color: #10B981;
+  text-align: center;
+  margin-top: 8px;
+}
+
+/* ─── Webhook config modal ───────────────────────── */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--color-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.modal {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 24px;
+  width: 420px;
+  box-shadow: var(--shadow-modal);
+}
+
+.modalTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 16px 0;
+}
+
+.modalInput {
+  width: 100%;
+  height: 38px;
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text-primary);
+  font-size: 13px;
+  font-family: Inter, system-ui, sans-serif;
+  padding: 0 12px;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+}
+
+.modalInput:focus { border-color: #F26522; }
+.modalInput::placeholder { color: var(--color-text-faint); }
+
+.modalNote {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modalCancelBtn {
+  height: 36px;
+  padding: 0 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: Inter, system-ui, sans-serif;
+  cursor: pointer;
+  transition: border-color 0.1s, color 0.1s;
+}
+
+.modalCancelBtn:hover { border-color: var(--color-text-secondary); color: var(--color-text-primary); }
+
+.modalSaveBtn {
+  height: 36px;
+  padding: 0 16px;
+  background: #F26522;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: Inter, system-ui, sans-serif;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.modalSaveBtn:hover { background: #d9581e; }
