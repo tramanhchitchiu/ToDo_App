@@ -1,0 +1,24 @@
+
+# Environment and secrets
+.env
+.env.local
+*.key
+*.pem
+
+# Planning and checklist (keep locally, don't commit)
+PHASE1_REPORT.md
+AGENT_SETUP.md
+AGENT_CHECKLIST.md
+AGENT_IMPLEMENTATION_PLAN.md
+
+# Test results (auto-generated)
+extraction_results.json
+focused_sources_results.json
+real_samples_results.json
+
+# IDE and OS
+.DS_Store
+.vscode/
+*.pyc
+__pycache__/
+.pytest_cache/

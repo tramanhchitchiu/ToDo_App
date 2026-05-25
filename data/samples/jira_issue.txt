@@ -1,0 +1,44 @@
+JIRA TICKET: CORE-1234
+Project: Core Platform
+Type: Task
+Status: In Progress
+Priority: HIGH
+Assigned to: John Developer
+
+Title: Implement OAuth2 Integration with Google
+
+Description:
+We need to add OAuth2 authentication support for Google accounts.
+This will allow users to sign in using their Google credentials.
+
+Requirements:
+- Support Google OAuth2 flow
+- Store refresh tokens securely
+- Implement token refresh mechanism
+- Write integration tests
+- Update API documentation
+
+Acceptance Criteria:
+- [ ] User can sign in with Google account
+- [ ] Tokens are refreshed automatically
+- [ ] Integration tests pass
+- [ ] Documentation updated
+- [ ] Code reviewed by 2+ team members
+
+Related Issues:
+- CORE-1200: OAuth2 Framework Setup (completed)
+- CORE-1250: GitHub OAuth2 Integration (in progress)
+
+Comments:
+---
+John: "Starting work on this today. Should be done by end of week."
+(2026-05-25 09:00)
+
+Manager: "This is blocking the Q2 release. Please prioritize!"
+(2026-05-25 10:00)
+
+QA Lead: "Ready to test as soon as code is merged. Let me know when PR is ready."
+(2026-05-25 11:00)
+
+Security: "Please make sure tokens are encrypted at rest. Need security review before merge."
+(2026-05-25 11:30)

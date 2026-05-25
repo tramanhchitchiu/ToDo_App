@@ -1,0 +1,11 @@
+Issue Key,Issue Type,Summary,Description,Status,Priority,Assignee,Due Date,Components,Labels
+PROJ-1001,Task,Implement user authentication module,"Add OAuth2 support with Google and GitHub providers. Include MFA setup.","In Progress","High","John Smith","2026-06-01","Backend","auth,security"
+PROJ-1002,Bug,Fix null pointer exception in payment gateway,"NullPointerException when processing refunds. Affects 2% of transactions. High priority fix.","To Do","Critical","Sarah Johnson","2026-05-28","Payments","bug,urgent"
+PROJ-1003,Task,Update API documentation for v2 endpoints,"Document all new REST endpoints, request/response schemas, error codes, and examples.","In Progress","Medium","Mike Chen","2026-06-05","Documentation","api,docs"
+PROJ-1004,Task,Database migration for user profiles,"Migrate user profile data from PostgreSQL 11 to 14. Run tests before production.","To Do","High","Database Team","2026-06-10","Database","migration,database"
+PROJ-1005,Bug,Session timeout not persisting across page refresh,"User session expires incorrectly when page is refreshed. Should persist for 24 hours.","In Progress","High","Frontend Team","2026-05-30","Frontend","bug,session"
+PROJ-1006,Task,Prepare Q2 release notes,"Compile all features, bug fixes, and improvements for Q2 release announcement.","To Do","Medium","Product Manager","2026-06-15","Release","release,documentation"
+PROJ-1007,Task,Security audit of payment processing,"Conduct full security review of payment gateway integration, encryption, and PCI compliance.","To Do","Critical","Security Team","2026-05-29","Security","security,audit"
+PROJ-1008,Task,Performance optimization for dashboard,"Reduce dashboard load time from 3s to <1s. Profile and optimize queries.","In Progress","Medium","Backend","2026-06-08","Performance","performance,optimization"
+PROJ-1009,Task,Implement WebSocket support,"Add real-time notifications using WebSocket. Update server infrastructure.","To Do","High","DevOps","2026-06-12","Infrastructure","websocket,realtime"
+PROJ-1010,Bug,Email validation regex not supporting international domains,"Regex pattern fails for non-ASCII domains. Need to support IDN (Internationalized Domain Names).","To Do","Medium","Backend","2026-05-31","Backend","bug,email"

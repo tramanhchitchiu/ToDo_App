@@ -1,0 +1,42 @@
+SPRINT PLANNING MEETING
+Date: 2026-05-25
+Time: 10:00 AM - 11:30 AM
+Attendees: Engineering Team, Product Manager, QA Lead
+
+TOPICS DISCUSSED:
+1. Sprint 12 Retrospective
+   - Good: API refactoring completed on time
+   - Bad: Database migrations took longer than expected
+   - Action: Document migration process for future sprints
+
+2. Sprint 13 Planning
+   Total Story Points: 34
+
+   Story 1: User Dashboard Redesign (13 points)
+   - Task: Design new dashboard layout (assigned: UI Team)
+   - Task: Implement responsive design
+   - Task: Write unit tests for components
+   - Deadline: 2026-06-08
+
+   Story 2: Push Notification System (13 points)
+   - Task: Setup push service infrastructure
+   - Task: Integrate FCM and APNs
+   - Task: Test on iOS and Android devices
+
+   Story 3: Analytics Dashboard (8 points)
+   - Task: Create analytics data pipeline
+   - Task: Design dashboard UI
+   - Deadline: 2026-06-01
+
+3. Bug Fixes
+   - Fix: Memory leak in WebSocket handler (HIGH PRIORITY)
+   - Fix: Email validation regex not working for international domains
+   - Fix: Session timeout not persisting across page refreshes
+
+ACTION ITEMS (Owner - Deadline):
+- Prepare infrastructure for push notifications (DevOps Team - 2026-05-28)
+- Get design approval for dashboard (UI Team - 2026-05-27)
+- Setup analytics database (Data Team - 2026-05-29)
+- Complete security audit of auth module (Security Team - 2026-05-26)
+
+Next Meeting: 2026-06-01
