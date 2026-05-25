@@ -3,7 +3,7 @@
 > "không quên, không giận, không hối."  
 > *"Don't forget, don't get angry, don't regret"* — Vietnamese wisdom
 
-**Status:** ✅ All 7 Phases Complete | 🚀 Ready for Frontend Integration
+**Status:** ✅ All 7 Phases Complete | ✅ Phase 2 Frontend Integration Done | 🚀 Testing & Deployment Ready
 
 ---
 
@@ -46,7 +46,7 @@ Task Mom 24/7 is an AI Agent system that:
 
 ---
 
-## Current Status (2026-05-25)
+## Current Status (2026-05-26)
 
 ### ✅ Phase 1: Extraction Engine — COMPLETE
 
@@ -261,15 +261,48 @@ Ready for User Decisions
 
 ---
 
-### 🚀 Phase 7: FastAPI Integration — QUEUED
+### ✅ Phase 7: Frontend-to-API Integration — COMPLETE
 
-**What's Needed:**
-- [ ] `POST /run-agent` endpoint
-- [ ] `POST /tasks/{id}/accept` endpoint
-- [ ] `POST /tasks/{id}/reject` endpoint
-- [ ] Connect to frontend
+**What's Done:**
+- ✅ Backend: Extended SQLite schema with `tasks` table
+- ✅ Backend: Added missing endpoints (GET /tasks, GET /daily-briefing)
+- ✅ Backend: Integrated task persistence with decision store
+- ✅ Frontend: Created Axios HTTP client (`frontend/src/api/client.ts`)
+- ✅ Frontend: Wired all pages to real API endpoints
+- ✅ Frontend: Implemented mock mode for testing without API calls
+- ✅ Frontend: Fixed hardcoded dates to use dynamic values
+- ✅ E2E: Complete workflow tested (extract → confirm → dashboard → briefing)
+- ✅ Bug fix: ConfirmTasks navigation after submission
 
-**Estimated:** 1 hour
+**Features:**
+- **Mock Mode:** Default enabled for testing, controlled via localStorage
+- **API Client:** Axios with 180s timeout (300s for agent processing)
+- **Dashboard:** Live task list with filtering, stats computed from real data
+- **Briefing:** Daily briefing with task breakdown and recommendations
+- **Confirm Tasks:** AI-extracted tasks with accept/reject/edit decisions
+- **CORS:** Enabled for frontend-backend communication on localhost:3000/3001
+
+**Test Results:**
+```
+Backend health:        ✅ /health responds 200
+Mock tasks:            ✅ /run-agent-mock returns 5 tasks in 3 groups
+Real agent:            ✅ /run-agent triggers AI extraction (Claude API)
+Task persistence:      ✅ Accept/reject decisions stored in SQLite
+Dashboard load:        ✅ Tasks fetch and display correctly
+Briefing stats:        ✅ Overload risk and effort estimates calculated
+Navigation:            ✅ ConfirmTasks → Dashboard flow fixed
+```
+
+**Files Modified/Created:**
+- `agent/decisions/store.py` — Added tasks table + upsert_task method
+- `agent/pipeline.py` — Cache candidate groups for decision persistence
+- `backend/agent_service.py` — Added GET /tasks, GET /daily-briefing, mock endpoint
+- `frontend/src/api/client.ts` — Axios client (NEW)
+- `frontend/src/App.tsx` — Agent state management
+- `frontend/src/components/AppShell.tsx` — Run Ingestion button wiring
+- `frontend/src/pages/ConfirmTasks.tsx` — Real API integration
+- `frontend/src/pages/Dashboard.tsx` — Live task fetching
+- `frontend/src/pages/Briefing.tsx` — Live briefing data
 
 ---
 
@@ -797,10 +830,11 @@ Part of FPT's AI Hackathon 2026
 ---
 
 **Last Updated:** 2026-05-26  
-**Phase 1 Status:** ✅ COMPLETE (41 tasks extracted)  
-**Phase 2 Status:** ✅ COMPLETE (41 tasks scored, avg 51.9/100)  
-**Phase 3 Status:** ✅ COMPLETE (11 groups with narratives)  
-**Phase 4 Status:** ✅ COMPLETE (6 decisions, 81.2% scoring accuracy)  
-**Phase 5 Status:** ✅ COMPLETE (14 trace steps, 2 formats)  
-**Phase 6 Status:** ✅ COMPLETE (End-to-end pipeline, 180s execution)  
-**Next Phase:** 🚀 FastAPI Integration (Phase 7)
+**Agent Phase 1:** ✅ COMPLETE (41 tasks extracted)  
+**Agent Phase 2:** ✅ COMPLETE (41 tasks scored, avg 51.9/100)  
+**Agent Phase 3:** ✅ COMPLETE (11 groups with narratives)  
+**Agent Phase 4:** ✅ COMPLETE (6 decisions, 81.2% scoring accuracy)  
+**Agent Phase 5:** ✅ COMPLETE (14 trace steps, 2 formats)  
+**Agent Phase 6:** ✅ COMPLETE (End-to-end pipeline, 180s execution)  
+**Frontend Phase 2:** ✅ COMPLETE (Frontend-to-API integration, mock mode, e2e tested)  
+**Next Phase:** 🚀 Deployment & Scaling
