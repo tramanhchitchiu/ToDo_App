@@ -33,9 +33,12 @@ const PRIORITY_STYLE: Record<TaskPriority, { bg: string; color: string; label: s
   low:    { bg: 'rgba(16,185,129,0.12)',  color: '#10B981', label: 'Low'  },
 };
 
-const TODAY = '2026-05-25';
+function getToday(): string {
+  return new Date().toISOString().slice(0, 10);
+}
 
 function formatDeadline(deadline: string): { text: string; urgent: boolean } {
+  const TODAY = getToday();
   if (deadline === TODAY) return { text: 'Today', urgent: true };
   const d = new Date(deadline + 'T00:00:00');
   const today = new Date(TODAY + 'T00:00:00');
