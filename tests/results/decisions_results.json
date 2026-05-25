@@ -1,0 +1,43 @@
+{
+  "timestamp": "2026-05-26T00:10:16.455621",
+  "phase": "Decision Store & Learning",
+  "statistics": {
+    "total_decisions": 6,
+    "unique_tasks_decided": 6,
+    "by_action": {
+      "accept": 3,
+      "edit": 1,
+      "reject": 2
+    },
+    "accept_rate": 0.5,
+    "reject_rate": 0.3333333333333333
+  },
+  "accuracy": {
+    "total_feedback": 5,
+    "avg_confidence_error": 18.8,
+    "max_confidence_error": 42,
+    "min_confidence_error": 0,
+    "accuracy": 81.2
+  },
+  "suggestions": [
+    "High rejection rate (>30%) - consider lowering confidence thresholds",
+    "Pattern 'reject' has high rejection rate - review scoring logic",
+    "High confidence error (18.8%) - retrain on recent feedback"
+  ],
+  "decisions_saved": 6,
+  "feedback_recorded": 5,
+  "rejection_patterns": [
+    {
+      "pattern": "reject",
+      "rejects": 2,
+      "accepts": 0,
+      "reject_rate": 1.0
+    },
+    {
+      "pattern": "accept",
+      "rejects": 0,
+      "accepts": 3,
+      "reject_rate": 0.0
+    }
+  ]
+}

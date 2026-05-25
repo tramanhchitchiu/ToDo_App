@@ -3,7 +3,7 @@
 > "không quên, không giận, không hối."  
 > *"Don't forget, don't get angry, don't regret"* — Vietnamese wisdom
 
-**Status:** ✅ Phase 1-3 Complete | 🚀 Phase 4-7 Queued
+**Status:** ✅ Phase 1-4 Complete | 🚀 Phase 5-7 Queued
 
 ---
 
@@ -149,15 +149,41 @@ Tasks: 8 related items
 
 ---
 
-### 🚀 Phase 4: Decision Store — QUEUED
+### ✅ Phase 4: Decision Store — COMPLETE
 
-**What's Needed:**
-- [ ] SQLite persistence for decisions
-- [ ] Track accept/reject/edit actions
-- [ ] Learn rejection patterns
-- [ ] Improve confidence scoring over time
+**What's Done:**
+- ✅ SQLite persistence for user decisions
+- ✅ Track accept/reject/edit actions
+- ✅ Pattern learning from decision history
+- ✅ Scoring accuracy analysis
+- ✅ Automatic improvement suggestions
 
-**Estimated:** 1 hour
+**Test Results:**
+```
+Decisions tracked:     6 unique decisions
+Feedback recorded:     5 feedback entries
+Accept rate:           50.0%
+Reject rate:           33.3%
+Scoring accuracy:      81.2%
+Avg confidence error:  18.8 points
+
+Improvement suggestions generated:
+  1. High rejection rate (>30%) - lower thresholds
+  2. Pattern analysis identifies reject outliers
+  3. Retrain scoring on recent feedback
+```
+
+**Features:**
+- **Decision persistence**: Accept/reject/edit tracking
+- **Pattern analysis**: Identify frequently-rejected tasks
+- **Feedback recording**: Track confidence vs reality
+- **Scoring accuracy**: Calculate how well we score
+- **Auto-suggestions**: Recommend scoring improvements
+
+**Files:**
+- `agent/decisions/store.py` — DecisionStore engine (345 lines)
+- `tests/test_decisions.py` — Decision store test (220 lines)
+- `tests/results/decisions_results.json` — Test results
 
 ---
 
@@ -323,8 +349,9 @@ ToDo_App-main/
 │   │   ├── __init__.py
 │   │   └── grouper.py                  Context-aware task grouping + narratives
 │   │
-│   ├── decisions/                      🚀 Phase 4: Decision Store (Planned)
-│   │   └── __init__.py
+│   ├── decisions/                      ✅ Phase 4: Decision Store (COMPLETE)
+│   │   ├── __init__.py
+│   │   └── store.py                    SQLite persistence + learning
 │   │
 │   ├── reasoning/                      🚀 Phase 5: Reasoning Trace (Planned)
 │   │   └── __init__.py
@@ -391,6 +418,7 @@ ToDo_App-main/
 │   ├── test_real_samples.py            ✅ Extended real samples test
 │   ├── test_scoring.py                 ✅ Confidence scoring test
 │   ├── test_grouping.py                ✅ Grouping & narrative test (Phase 3)
+│   ├── test_decisions.py               ✅ Decision store & learning test (Phase 4)
 │   │
 │   └── results/                        📊 Test Results (all tests save here)
 │       ├── README.md                   Test results documentation
@@ -398,7 +426,8 @@ ToDo_App-main/
 │       ├── focused_sources_results.json Real sample extraction (Phase 1)
 │       ├── real_samples_results.json   Extended sample results
 │       ├── scoring_results.json        Confidence scoring results (Phase 2)
-│       └── grouping_results.json       ✅ Task grouping results (Phase 3)
+│       ├── grouping_results.json       Task grouping results (Phase 3)
+│       └── decisions_results.json      ✅ Decision store results (Phase 4)
 │
 ├── .env.example                        Environment template (API keys)
 ├── requirements.txt                    Python dependencies
@@ -564,8 +593,8 @@ meeting_notes.txt          Additional meeting notes
 | 1-2 | Phase 1: Extraction | ✅ DONE | 41 tasks extracted |
 | 2-3 | Phase 2: Scoring | ✅ DONE | Confidence scores (avg 51.9/100) |
 | 3-4 | Phase 3: Grouping | ✅ DONE | 11 task groups with narratives |
-| 4-5 | Phase 4: Store | 🚀 NEXT | Decision persistence |
-| 5-6 | Phase 5: Trace | 🚀 PLANNED | Reasoning logs |
+| 4-5 | Phase 4: Store | ✅ DONE | Decision persistence + learning (81.2% accuracy) |
+| 5-6 | Phase 5: Trace | 🚀 NEXT | Reasoning logs |
 | 6-7 | Phase 6: Pipeline | 🚀 PLANNED | Agent orchestration |
 | 7-8 | Phase 7: FastAPI | 🚀 PLANNED | API endpoints |
 
@@ -719,4 +748,5 @@ Part of FPT's AI Hackathon 2026
 **Phase 1 Status:** ✅ COMPLETE (41 tasks extracted)  
 **Phase 2 Status:** ✅ COMPLETE (41 tasks scored, avg 51.9/100)  
 **Phase 3 Status:** ✅ COMPLETE (11 groups with narratives)  
-**Next Phase:** 🚀 Decision Store (Phase 4)
+**Phase 4 Status:** ✅ COMPLETE (6 decisions, 81.2% scoring accuracy)  
+**Next Phase:** 🚀 Reasoning Trace (Phase 5)
