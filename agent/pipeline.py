@@ -39,6 +39,10 @@ class AgentPipeline:
         self.trace_enabled = trace_enabled
         self.tracer = ReasoningTracer() if trace_enabled else None
 
+        # Store last pipeline result for decision metadata
+        self._last_result = None
+        self._last_groups = None
+
     async def run(self, sources: Optional[List] = None) -> ExtractionResult:
         """
         Run the complete pipeline: Extract → Score → Group → Store → Trace
@@ -74,6 +78,10 @@ class AgentPipeline:
                 total_candidates=len(candidates),
                 trace=trace_output
             )
+
+            # Store result and groups for later access in decision methods
+            self._last_result = result
+            self._last_groups = groups
 
             if self.trace_enabled:
                 self.tracer.add_step(
@@ -266,6 +274,25 @@ class AgentPipeline:
             return "Tracing disabled"
         return self.tracer.save_trace(format=format)
 
+    def _get_task_metadata(self, task_id: str) -> Optional[dict]:
+        """Find task metadata from the last pipeline result"""
+        if not self._last_groups:
+            return None
+
+        for group in self._last_groups:
+            for candidate in group.candidates:
+                if candidate.id == task_id:
+                    return {
+                        "title": candidate.title,
+                        "source": candidate.source,
+                        "priority": candidate.priority,
+                        "confidence": candidate.confidence,
+                        "reason": candidate.reason,
+                        "deadline": candidate.deadline,
+                        "group_label": group.context_label,
+                    }
+        return None
+
     def accept_decision(self, task_id: str, reason: str, notes: str = "") -> int:
         """User accepts a task"""
         decision = Decision(
@@ -274,7 +301,15 @@ class AgentPipeline:
             reason=reason,
             notes=notes
         )
-        return self.store.save_decision(decision)
+        decision_id = self.store.save_decision(decision)
+
+        # Also store task metadata with accepted status
+        metadata = self._get_task_metadata(task_id)
+        if metadata:
+            metadata["status"] = "accepted"
+            self.store.upsert_task(task_id, metadata)
+
+        return decision_id
 
     def reject_decision(self, task_id: str, reason: str, notes: str = "") -> int:
         """User rejects a task"""
@@ -284,7 +319,15 @@ class AgentPipeline:
             reason=reason,
             notes=notes
         )
-        return self.store.save_decision(decision)
+        decision_id = self.store.save_decision(decision)
+
+        # Also store task metadata with rejected status
+        metadata = self._get_task_metadata(task_id)
+        if metadata:
+            metadata["status"] = "rejected"
+            self.store.upsert_task(task_id, metadata)
+
+        return decision_id
 
     def edit_decision(self, task_id: str, reason: str, notes: str = "") -> int:
         """User edits a task"""

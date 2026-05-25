@@ -72,6 +72,29 @@ class ErrorResponse(BaseModel):
     timestamp: str
 
 
+class DailyBriefingData(BaseModel):
+    """Daily briefing data"""
+    total_tasks: int
+    breakdown: dict
+    overload_risk: str
+    estimated_effort_hours: float
+    recommendation: str
+
+
+class GetTasksResponse(BaseModel):
+    """Response from get tasks endpoint"""
+    success: bool
+    data: list
+    timestamp: str
+
+
+class GetBriefingResponse(BaseModel):
+    """Response from get daily briefing endpoint"""
+    success: bool
+    data: DailyBriefingData
+    timestamp: str
+
+
 # Endpoints
 @app.on_event("startup")
 async def startup():
@@ -233,6 +256,117 @@ async def reject_task(task_id: str, request: TaskDecisionRequest):
         raise HTTPException(
             status_code=500,
             detail=f"Failed to record decision: {str(e)}"
+        )
+
+
+@app.get("/tasks", response_model=GetTasksResponse)
+async def get_tasks(priority: Optional[str] = None, source: Optional[str] = None):
+    """
+    Get all accepted tasks from the database.
+
+    Query params:
+        priority: Filter by priority (urgent, normal, low)
+        source: Filter by source (jira, email, meeting, teams, slack)
+
+    Returns:
+        List of accepted tasks
+    """
+    global pipeline
+
+    if not pipeline:
+        try:
+            init_pipeline()
+        except ValueError as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    try:
+        tasks = pipeline.store.get_accepted_tasks(priority=priority, source=source)
+
+        return GetTasksResponse(
+            success=True,
+            data=tasks,
+            timestamp=datetime.now().isoformat()
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to get tasks: {str(e)}"
+        )
+
+
+@app.get("/daily-briefing", response_model=GetBriefingResponse)
+async def get_daily_briefing():
+    """
+    Get daily workload briefing with stats and recommendation.
+
+    Returns:
+        Daily briefing data with total tasks, breakdown, overload risk, and recommendation
+    """
+    global pipeline
+
+    if not pipeline:
+        try:
+            init_pipeline()
+        except ValueError as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    try:
+        # Get accepted tasks
+        tasks = pipeline.store.get_accepted_tasks()
+
+        # Calculate breakdown by priority
+        urgent_count = sum(1 for t in tasks if t['priority'] == 'urgent')
+        normal_count = sum(1 for t in tasks if t['priority'] == 'normal')
+        low_count = sum(1 for t in tasks if t['priority'] == 'low')
+
+        total_tasks = len(tasks)
+
+        # Determine overload risk
+        if total_tasks > 10 or urgent_count > 3:
+            overload_risk = 'high'
+        elif total_tasks > 5 or urgent_count > 1:
+            overload_risk = 'medium'
+        else:
+            overload_risk = 'low'
+
+        # Estimate effort hours (placeholder: 1.5 hours per task)
+        estimated_effort_hours = total_tasks * 1.5
+
+        # Generate recommendation based on urgent count and total
+        if urgent_count > 3:
+            recommendation = f"You have {urgent_count} urgent tasks — focus on those first. Budget {estimated_effort_hours:.1f} hours for today."
+        elif urgent_count > 0:
+            recommendation = f"You have {urgent_count} urgent task(s) to complete. Plan {estimated_effort_hours:.1f} hours for all {total_tasks} tasks."
+        elif total_tasks > 10:
+            recommendation = f"Heavy day ahead: {total_tasks} tasks total. Prioritize by deadline. Estimated {estimated_effort_hours:.1f} hours of work."
+        elif total_tasks > 0:
+            recommendation = f"You have {total_tasks} tasks queued. Manageable day. Estimated {estimated_effort_hours:.1f} hours of work."
+        else:
+            recommendation = "No tasks today. You're all caught up! 🎉"
+
+        briefing_data = DailyBriefingData(
+            total_tasks=total_tasks,
+            breakdown={
+                'urgent': urgent_count,
+                'normal': normal_count,
+                'low': low_count
+            },
+            overload_risk=overload_risk,
+            estimated_effort_hours=estimated_effort_hours,
+            recommendation=recommendation
+        )
+
+        return GetBriefingResponse(
+            success=True,
+            data=briefing_data,
+            timestamp=datetime.now().isoformat()
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to get briefing: {str(e)}"
         )
 
 

@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import styles from './ConfirmTasks.module.css';
 import { TaskCard, type Decision } from '../components/TaskCard';
+import { apiClient } from '../api/client';
 import type { TaskCandidate, TaskGroup } from '../types/api.types';
 
 // ─── mock data (Phase 1) ──────────────────────────────────────────────────────
@@ -86,25 +87,34 @@ const ALL_CANDIDATES: TaskCandidate[] = MOCK_GROUPS.flatMap((g) => g.candidates)
 // ─── component ────────────────────────────────────────────────────────────────
 
 interface ConfirmTasksProps {
+  groups?: TaskGroup[];
   onSubmit?: () => void;
 }
 
-export function ConfirmTasks({ onSubmit }: ConfirmTasksProps) {
+export function ConfirmTasks({ groups = MOCK_GROUPS, onSubmit }: ConfirmTasksProps) {
   const [decisions, setDecisions] = useState<Record<string, Decision>>({});
   const [rejectModal, setRejectModal] = useState<{ candidateId: string; reason: string } | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  const total = ALL_CANDIDATES.length;
+  const allCandidates = groups.flatMap((g) => g.candidates);
+  const total = allCandidates.length;
   const decided = Object.keys(decisions).length;
   const remaining = total - decided;
   const allDecided = remaining === 0;
 
   const undecidedIds = useMemo(
-    () => ALL_CANDIDATES.filter((c) => !decisions[c.id]).map((c) => c.id),
-    [decisions],
+    () => allCandidates.filter((c) => !decisions[c.id]).map((c) => c.id),
+    [decisions, allCandidates],
   );
 
-  function handleAccept(id: string) {
-    setDecisions((prev) => ({ ...prev, [id]: { action: 'accepted' } }));
+  async function handleAccept(id: string) {
+    try {
+      await apiClient.acceptTask(id, 'User confirmed', '');
+      setDecisions((prev) => ({ ...prev, [id]: { action: 'accepted' } }));
+    } catch (error) {
+      console.error('Failed to accept task:', error);
+      alert('Failed to accept task. Please try again.');
+    }
   }
 
   function handleEdit(id: string, data: { title: string; deadline?: string }) {
@@ -115,30 +125,44 @@ export function ConfirmTasks({ onSubmit }: ConfirmTasksProps) {
     setRejectModal({ candidateId: id, reason: '' });
   }
 
-  function handleRejectConfirm() {
+  async function handleRejectConfirm() {
     if (!rejectModal) return;
-    setDecisions((prev) => ({
-      ...prev,
-      [rejectModal.candidateId]: { action: 'rejected', reason: rejectModal.reason },
-    }));
-    setRejectModal(null);
+    try {
+      await apiClient.rejectTask(rejectModal.candidateId, rejectModal.reason || 'No reason provided', '');
+      setDecisions((prev) => ({
+        ...prev,
+        [rejectModal.candidateId]: { action: 'rejected', reason: rejectModal.reason },
+      }));
+      setRejectModal(null);
+    } catch (error) {
+      console.error('Failed to reject task:', error);
+      alert('Failed to reject task. Please try again.');
+    }
   }
 
   function handleAcceptAll() {
     const batch: Record<string, Decision> = {};
     undecidedIds.forEach((id) => {
-      const c = ALL_CANDIDATES.find((x) => x.id === id);
-      if (c && c.confidence >= 80) batch[id] = { action: 'accepted' };
+      const c = allCandidates.find((x) => x.id === id);
+      if (c && c.confidence >= 80) {
+        handleAccept(id);
+        batch[id] = { action: 'accepted' };
+      }
     });
     if (Object.keys(batch).length > 0) {
       setDecisions((prev) => ({ ...prev, ...batch }));
     }
   }
 
-  function handleSubmit() {
-    // Phase 1: just reset and notify parent
-    setDecisions({});
-    onSubmit?.();
+  async function handleSubmit() {
+    setSubmitting(true);
+    try {
+      // All decisions already submitted individually
+      setDecisions({});
+      onSubmit?.();
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -155,7 +179,12 @@ export function ConfirmTasks({ onSubmit }: ConfirmTasksProps) {
 
       {/* Thread groups */}
       <div className={styles.groups}>
-        {MOCK_GROUPS.map((group) => (
+        {groups.length === 0 ? (
+          <div style={{ padding: '32px', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
+            No tasks extracted yet. Click "Run Ingestion" to start the agent pipeline.
+          </div>
+        ) : (
+          groups.map((group) => (
           <div key={group.id} className={styles.group}>
             <div className={styles.groupHeader}>
               <p className={styles.groupLabel}>📁 {group.context_label}</p>
@@ -172,12 +201,13 @@ export function ConfirmTasks({ onSubmit }: ConfirmTasksProps) {
               />
             ))}
           </div>
-        ))}
+        ))
+        )}
       </div>
 
       {/* Submit section */}
       <div className={styles.submitSection}>
-        <button className={styles.submitBtn} disabled={!allDecided} onClick={handleSubmit}>
+        <button className={styles.submitBtn} disabled={!allDecided || submitting} onClick={handleSubmit}>
           Submit All Decisions
         </button>
         {!allDecided && (

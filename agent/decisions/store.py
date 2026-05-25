@@ -69,6 +69,23 @@ class DecisionStore:
             )
         """)
 
+        # Create tasks table to store task metadata
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS tasks (
+                id TEXT PRIMARY KEY,
+                title TEXT NOT NULL,
+                source TEXT NOT NULL,
+                priority TEXT NOT NULL,
+                confidence INTEGER,
+                reason TEXT,
+                deadline TEXT,
+                assignee TEXT,
+                group_label TEXT,
+                status TEXT DEFAULT 'pending',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
         conn.commit()
         conn.close()
 
@@ -319,6 +336,93 @@ class DecisionStore:
 
         return suggestions
 
+    def upsert_task(self, task_id: str, metadata: dict) -> None:
+        """
+        Store or update task metadata in the database.
+
+        Args:
+            task_id: Task ID
+            metadata: Dict with keys: title, source, priority, confidence, reason, deadline, assignee, group_label, status
+        """
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO tasks (id, title, source, priority, confidence, reason, deadline, assignee, group_label, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(id) DO UPDATE SET
+                title=excluded.title,
+                source=excluded.source,
+                priority=excluded.priority,
+                confidence=excluded.confidence,
+                reason=excluded.reason,
+                deadline=excluded.deadline,
+                assignee=excluded.assignee,
+                group_label=excluded.group_label,
+                status=excluded.status
+        """, (
+            task_id,
+            metadata.get("title", ""),
+            metadata.get("source", ""),
+            metadata.get("priority", ""),
+            metadata.get("confidence", 0),
+            metadata.get("reason", ""),
+            metadata.get("deadline"),
+            metadata.get("assignee"),
+            metadata.get("group_label"),
+            metadata.get("status", "pending"),
+        ))
+
+        conn.commit()
+        conn.close()
+
+    def get_accepted_tasks(self, priority: Optional[str] = None, source: Optional[str] = None) -> List[dict]:
+        """
+        Get all accepted tasks from the database.
+
+        Args:
+            priority: Filter by priority (optional)
+            source: Filter by source (optional)
+
+        Returns:
+            List of task dicts
+        """
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+
+        query = "SELECT id, title, source, priority, confidence, reason, deadline, assignee, group_label, status FROM tasks WHERE status = 'accepted'"
+        params = []
+
+        if priority:
+            query += " AND priority = ?"
+            params.append(priority)
+
+        if source:
+            query += " AND source = ?"
+            params.append(source)
+
+        query += " ORDER BY created_at DESC"
+
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        conn.close()
+
+        return [
+            {
+                "id": row[0],
+                "title": row[1],
+                "source": row[2],
+                "priority": row[3],
+                "confidence": row[4],
+                "reason": row[5],
+                "deadline": row[6],
+                "assignee": row[7],
+                "group_label": row[8],
+                "status": row[9],
+            }
+            for row in rows
+        ]
+
     def clear_all(self):
         """Clear all decisions (for testing). USE WITH CAUTION."""
         conn = sqlite3.connect(self.db_path)
@@ -326,5 +430,6 @@ class DecisionStore:
         cursor.execute("DELETE FROM decisions")
         cursor.execute("DELETE FROM patterns")
         cursor.execute("DELETE FROM task_feedback")
+        cursor.execute("DELETE FROM tasks")
         conn.commit()
         conn.close()

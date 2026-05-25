@@ -1,10 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import styles from './Dashboard.module.css';
+import { apiClient } from '../api/client';
 import type { TodoItem, TaskSource, TaskPriority, TaskStatus } from '../types/api.types';
 
 // ─── mock data (Phase 1) ──────────────────────────────────────────────────────
-
-const TODAY = '2026-05-25';
 
 const MOCK_ITEMS: TodoItem[] = [
   {
@@ -147,6 +146,12 @@ interface DashboardProps {
 }
 
 export function Dashboard({ onTaskClick }: DashboardProps) {
+  const TODAY = new Date().toISOString().slice(0, 10);
+
+  const [tasks, setTasks] = useState<TodoItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [search, setSearch] = useState('');
   const [sourceFilter, setSourceFilter] = useState<TaskSource | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<TaskStatus | 'all'>('all');
@@ -159,8 +164,27 @@ export function Dashboard({ onTaskClick }: DashboardProps) {
   const [doneDateTo, setDoneDateTo] = useState('');
   const [page, setPage] = useState(1);
 
+  // Fetch tasks on mount
+  useEffect(() => {
+    const fetchTasks = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await apiClient.getTasks();
+        setTasks(data || []);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load tasks');
+        setTasks([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTasks();
+  }, []);
+
   const filtered = useMemo(() => {
-    return MOCK_ITEMS.filter((t) => {
+    return tasks.filter((t) => {
       if (sourceFilter !== 'all' && t.source !== sourceFilter) return false;
       if (statusFilter !== 'all' && t.status !== statusFilter) return false;
       if (priorityFilter !== 'all' && t.priority !== priorityFilter) return false;
@@ -200,19 +224,30 @@ export function Dashboard({ onTaskClick }: DashboardProps) {
 
       return true;
     });
-  }, [search, sourceFilter, statusFilter, priorityFilter, dueDateFilter, dueDateFrom, dueDateTo, doneDateFilter, doneDateFrom, doneDateTo]);
+  }, [tasks, search, sourceFilter, statusFilter, priorityFilter, dueDateFilter, dueDateFrom, dueDateTo, doneDateFilter, doneDateFrom, doneDateTo]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   // summary stats
-  const total = MOCK_ITEMS.length;
-  const dueToday = MOCK_ITEMS.filter((t) => t.deadline === TODAY && t.status !== 'done').length;
-  const overdue = MOCK_ITEMS.filter((t) => {
+  const total = tasks.length;
+  const dueToday = tasks.filter((t) => t.deadline === TODAY && t.status !== 'done').length;
+  const overdue = tasks.filter((t) => {
     if (!t.deadline || t.status === 'done') return false;
     return new Date(t.deadline + 'T00:00:00') < new Date(TODAY + 'T00:00:00');
   }).length;
-  const done = MOCK_ITEMS.filter((t) => t.status === 'done').length;
+  const done = tasks.filter((t) => t.status === 'done').length;
+
+  if (error) {
+    return (
+      <div style={{ padding: '20px', color: '#EF4444', textAlign: 'center' }}>
+        <p>❌ {error}</p>
+        <button onClick={() => window.location.reload()} style={{ marginTop: '12px', padding: '8px 16px', background: '#F26522', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -336,6 +371,11 @@ export function Dashboard({ onTaskClick }: DashboardProps) {
 
       {/* Task table */}
       <div className={styles.tableWrapper}>
+        {loading ? (
+          <div style={{ padding: '32px', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
+            <p>Loading tasks...</p>
+          </div>
+        ) : (
         <table className={styles.table}>
           <thead className={styles.tableHead}>
             <tr>
@@ -445,6 +485,7 @@ export function Dashboard({ onTaskClick }: DashboardProps) {
             </button>
           </div>
         </div>
+        )}
       </div>
     </>
   );

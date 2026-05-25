@@ -20,6 +20,8 @@ interface AppShellProps {
   onBack?: () => void;
   theme: 'dark' | 'light';
   onToggleTheme: () => void;
+  onRunAgent?: () => void;
+  agentLoading?: boolean;
 }
 
 const PAGE_LABELS: Record<Page, string> = {
@@ -32,7 +34,7 @@ const PAGE_LABELS: Record<Page, string> = {
   'task-detail': 'Task Detail',
 };
 
-export function AppShell({ activePage, onNavigate, onLogout, children, headerTitle, headerExtra, onBack, theme, onToggleTheme }: AppShellProps) {
+export function AppShell({ activePage, onNavigate, onLogout, children, headerTitle, headerExtra, onBack, theme, onToggleTheme, onRunAgent, agentLoading }: AppShellProps) {
   return (
     <>
       <aside className={styles.sidebar}>
@@ -66,7 +68,14 @@ export function AppShell({ activePage, onNavigate, onLogout, children, headerTit
           <span className={styles.breadcrumb}>{headerTitle ?? PAGE_LABELS[activePage]}</span>
           <div className={styles.headerActions}>
             {headerExtra}
-            <button className={styles.runBtn} onClick={() => {}}>Run Ingestion</button>
+            <button
+              className={styles.runBtn}
+              onClick={onRunAgent}
+              disabled={agentLoading}
+              title={agentLoading ? 'Running agent pipeline...' : 'Run agent pipeline'}
+            >
+              {agentLoading ? '⏳ Running...' : 'Run Ingestion'}
+            </button>
             <button
               className={styles.themeBtn}
               onClick={onToggleTheme}
