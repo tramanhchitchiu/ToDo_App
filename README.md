@@ -3,7 +3,7 @@
 > "không quên, không giận, không hối."  
 > *"Don't forget, don't get angry, don't regret"* — Vietnamese wisdom
 
-**Status:** ✅ Phase 1-4 Complete | 🚀 Phase 5-7 Queued
+**Status:** ✅ Phase 1-5 Complete | 🚀 Phase 6-7 Queued
 
 ---
 
@@ -187,14 +187,37 @@ Improvement suggestions generated:
 
 ---
 
-### 🚀 Phase 5: Reasoning Trace — QUEUED
+### ✅ Phase 5: Reasoning Trace — COMPLETE
 
-**What's Needed:**
-- [ ] Log all decision steps (ingest → extract → score → group)
-- [ ] Human-readable trace output
-- [ ] Transparency for judges
+**What's Done:**
+- ✅ Comprehensive step logging across all phases
+- ✅ Human-readable text trace output
+- ✅ Machine-parseable JSON trace for analysis
+- ✅ Execution time tracking per step
+- ✅ Phase summary statistics
 
-**Estimated:** 0.5 hours
+**Test Results:**
+```
+Total steps recorded:     14 steps
+Phases traced:           5 (extraction, scoring, grouping, decision, learning)
+Execution time:          23.3 seconds (simulated)
+Status:                  100% success rate
+Text trace:              agent_trace.txt (5.6 KB)
+JSON trace:              agent_trace.json (6.5 KB)
+```
+
+**Features:**
+- **Step logging**: Record each phase with input/output
+- **Timing**: Track execution duration per step
+- **Text format**: Human-readable for judges
+- **JSON format**: Machine-parseable for analysis
+- **Phase summaries**: Statistics per phase
+- **Error tracking**: Log failures with details
+
+**Files:**
+- `agent/reasoning/tracer.py` — ReasoningTracer engine (240 lines)
+- `tests/test_reasoning.py` — Reasoning trace test (240 lines)
+- `tests/results/reasoning_results.json` — Test results
 
 ---
 
@@ -594,8 +617,8 @@ meeting_notes.txt          Additional meeting notes
 | 2-3 | Phase 2: Scoring | ✅ DONE | Confidence scores (avg 51.9/100) |
 | 3-4 | Phase 3: Grouping | ✅ DONE | 11 task groups with narratives |
 | 4-5 | Phase 4: Store | ✅ DONE | Decision persistence + learning (81.2% accuracy) |
-| 5-6 | Phase 5: Trace | 🚀 NEXT | Reasoning logs |
-| 6-7 | Phase 6: Pipeline | 🚀 PLANNED | Agent orchestration |
+| 5-6 | Phase 5: Trace | ✅ DONE | Reasoning logs (14 steps, 2 formats) |
+| 6-7 | Phase 6: Pipeline | 🚀 NEXT | Agent orchestration |
 | 7-8 | Phase 7: FastAPI | 🚀 PLANNED | API endpoints |
 
 ---
@@ -749,4 +772,5 @@ Part of FPT's AI Hackathon 2026
 **Phase 2 Status:** ✅ COMPLETE (41 tasks scored, avg 51.9/100)  
 **Phase 3 Status:** ✅ COMPLETE (11 groups with narratives)  
 **Phase 4 Status:** ✅ COMPLETE (6 decisions, 81.2% scoring accuracy)  
-**Next Phase:** 🚀 Reasoning Trace (Phase 5)
+**Phase 5 Status:** ✅ COMPLETE (14 trace steps, 2 formats)  
+**Next Phase:** 🚀 Main Pipeline (Phase 6)

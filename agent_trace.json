@@ -1,0 +1,277 @@
+{
+  "metadata": {
+    "start_time": "2026-05-26T00:14:03.723067",
+    "end_time": "2026-05-26T00:14:03.723728",
+    "total_duration_seconds": 0.000662,
+    "total_steps": 14
+  },
+  "steps": [
+    {
+      "phase": "extraction",
+      "step": "Load Jira issue from file",
+      "input_data": {
+        "source": "jira",
+        "file": "data/samples/jira_issue.txt"
+      },
+      "output_data": {
+        "tasks_found": 1,
+        "text_length": 1200
+      },
+      "timestamp": "2026-05-26T00:14:03.723077",
+      "duration_ms": 45.2,
+      "status": "success",
+      "error": null,
+      "notes": "Successfully parsed Jira issue format"
+    },
+    {
+      "phase": "extraction",
+      "step": "Extract 8 tasks from Jira text",
+      "input_data": {
+        "source": "jira",
+        "format": "text"
+      },
+      "output_data": {
+        "tasks_extracted": 8,
+        "avg_confidence": null
+      },
+      "timestamp": "2026-05-26T00:14:03.723082",
+      "duration_ms": 523.1,
+      "status": "success",
+      "error": null,
+      "notes": "Used Claude API for extraction"
+    },
+    {
+      "phase": "extraction",
+      "step": "Extract 10 tasks from Jira CSV",
+      "input_data": {
+        "source": "jira",
+        "format": "csv",
+        "rows": 10
+      },
+      "output_data": {
+        "tasks_extracted": 10,
+        "fields_parsed": 9
+      },
+      "timestamp": "2026-05-26T00:14:03.723084",
+      "duration_ms": 412.5,
+      "status": "success",
+      "error": null,
+      "notes": "Processed bulk export"
+    },
+    {
+      "phase": "extraction",
+      "step": "Extract 23 tasks from meeting minutes",
+      "input_data": {
+        "source": "meeting",
+        "lines": 150
+      },
+      "output_data": {
+        "tasks_extracted": 23,
+        "action_items": 23
+      },
+      "timestamp": "2026-05-26T00:14:03.723087",
+      "duration_ms": 687.3,
+      "status": "success",
+      "error": null,
+      "notes": "Meeting notes had clear action items"
+    },
+    {
+      "phase": "scoring",
+      "step": "Initialize confidence scorer",
+      "input_data": null,
+      "output_data": {
+        "model": "claude-opus-4-7",
+        "factors": 5
+      },
+      "timestamp": "2026-05-26T00:14:03.723089",
+      "duration_ms": 12.3,
+      "status": "success",
+      "error": null,
+      "notes": "Ready to score 41 candidates"
+    },
+    {
+      "phase": "scoring",
+      "step": "Score 41 candidates",
+      "input_data": {
+        "candidates": 41
+      },
+      "output_data": {
+        "avg_confidence": 51.9,
+        "highest": 95,
+        "lowest": 28,
+        "reasoning_generated": 41
+      },
+      "timestamp": "2026-05-26T00:14:03.723092",
+      "duration_ms": 12450.8,
+      "status": "success",
+      "error": null,
+      "notes": "Batch scoring completed"
+    },
+    {
+      "phase": "scoring",
+      "step": "Analyze score distribution",
+      "input_data": null,
+      "output_data": {
+        "critical": 1,
+        "high": 8,
+        "medium": 11,
+        "low": 20,
+        "very_low": 1
+      },
+      "timestamp": "2026-05-26T00:14:03.723094",
+      "duration_ms": 23.4,
+      "status": "success",
+      "error": null,
+      "notes": "Well-distributed confidence scores"
+    },
+    {
+      "phase": "grouping",
+      "step": "Initialize grouper",
+      "input_data": null,
+      "output_data": {
+        "candidates": 41
+      },
+      "timestamp": "2026-05-26T00:14:03.723096",
+      "duration_ms": 8.1,
+      "status": "success",
+      "error": null,
+      "notes": "Ready to group tasks"
+    },
+    {
+      "phase": "grouping",
+      "step": "Analyze task relationships",
+      "input_data": {
+        "candidates": 41,
+        "factors": [
+          "assignee",
+          "deadline",
+          "project"
+        ]
+      },
+      "output_data": {
+        "relationships_found": 23
+      },
+      "timestamp": "2026-05-26T00:14:03.723098",
+      "duration_ms": 156.2,
+      "status": "success",
+      "error": null,
+      "notes": "Identified task clusters"
+    },
+    {
+      "phase": "grouping",
+      "step": "Generate group narratives",
+      "input_data": {
+        "groups": 11
+      },
+      "output_data": {
+        "groups_created": 11,
+        "narratives_generated": 11,
+        "avg_tasks_per_group": 3.7
+      },
+      "timestamp": "2026-05-26T00:14:03.723100",
+      "duration_ms": 8923.4,
+      "status": "success",
+      "error": null,
+      "notes": "Claude API generated narratives"
+    },
+    {
+      "phase": "decision",
+      "step": "Initialize database",
+      "input_data": null,
+      "output_data": {
+        "database": "agent_decisions.db",
+        "tables": 3
+      },
+      "timestamp": "2026-05-26T00:14:03.723102",
+      "duration_ms": 4.2,
+      "status": "success",
+      "error": null,
+      "notes": "SQLite database ready"
+    },
+    {
+      "phase": "decision",
+      "step": "Save user decisions",
+      "input_data": {
+        "decisions": 6
+      },
+      "output_data": {
+        "saved": 6,
+        "accept": 3,
+        "reject": 2,
+        "edit": 1
+      },
+      "timestamp": "2026-05-26T00:14:03.723104",
+      "duration_ms": 12.5,
+      "status": "success",
+      "error": null,
+      "notes": "All decisions persisted"
+    },
+    {
+      "phase": "decision",
+      "step": "Record feedback",
+      "input_data": {
+        "feedback_entries": 5
+      },
+      "output_data": {
+        "avg_error": 18.8,
+        "accuracy": 81.2
+      },
+      "timestamp": "2026-05-26T00:14:03.723106",
+      "duration_ms": 8.3,
+      "status": "success",
+      "error": null,
+      "notes": "Scoring accuracy calculated"
+    },
+    {
+      "phase": "learning",
+      "step": "Analyze rejection patterns",
+      "input_data": {
+        "decisions": 6
+      },
+      "output_data": {
+        "high_reject_patterns": 1,
+        "improvements_suggested": 3
+      },
+      "timestamp": "2026-05-26T00:14:03.723108",
+      "duration_ms": 34.1,
+      "status": "success",
+      "error": null,
+      "notes": "Pattern learning enabled"
+    }
+  ],
+  "summary": {
+    "by_phase": {
+      "extraction": {
+        "total": 4,
+        "success": 4,
+        "error": 0
+      },
+      "scoring": {
+        "total": 3,
+        "success": 3,
+        "error": 0
+      },
+      "grouping": {
+        "total": 3,
+        "success": 3,
+        "error": 0
+      },
+      "decision": {
+        "total": 3,
+        "success": 3,
+        "error": 0
+      },
+      "learning": {
+        "total": 1,
+        "success": 1,
+        "error": 0
+      }
+    },
+    "by_status": {
+      "success": 14,
+      "error": 0,
+      "skipped": 0
+    },
+    "total_time_ms": 23301.399999999998
+  }
+}

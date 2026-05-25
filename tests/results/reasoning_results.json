@@ -1,0 +1,45 @@
+{
+  "timestamp": "2026-05-26T00:14:03.724343",
+  "phase": "Reasoning Trace",
+  "total_steps": 14,
+  "total_duration_ms": 23301.399999999998,
+  "by_phase": {
+    "extraction": {
+      "total": 4,
+      "success": 4,
+      "error": 0
+    },
+    "scoring": {
+      "total": 3,
+      "success": 3,
+      "error": 0
+    },
+    "grouping": {
+      "total": 3,
+      "success": 3,
+      "error": 0
+    },
+    "decision": {
+      "total": 3,
+      "success": 3,
+      "error": 0
+    },
+    "learning": {
+      "total": 1,
+      "success": 1,
+      "error": 0
+    }
+  },
+  "by_status": {
+    "success": 14,
+    "error": 0,
+    "skipped": 0
+  },
+  "phases_traced": [
+    "extraction",
+    "scoring",
+    "grouping",
+    "decision",
+    "learning"
+  ]
+}

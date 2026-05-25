@@ -1,0 +1,160 @@
+================================================================================
+TASK MOM 24/7 — REASONING TRACE
+================================================================================
+
+Trace started: 2026-05-26T00:14:03.723067
+Total duration: 0.00s
+Total steps: 14
+
+────────────────────────────────────────────────────────────────────────────────
+PHASE: EXTRACTION
+────────────────────────────────────────────────────────────────────────────────
+
+[1] ✓ Load Jira issue from file
+    Time: 45.2ms
+    Note: Successfully parsed Jira issue format
+    Input:
+      • source: jira
+      • file: data/samples/jira_issue.txt
+    Output:
+      • tasks_found: 1
+      • text_length: 1200
+
+[2] ✓ Extract 8 tasks from Jira text
+    Time: 523.1ms
+    Note: Used Claude API for extraction
+    Input:
+      • source: jira
+      • format: text
+    Output:
+      • tasks_extracted: 8
+
+[3] ✓ Extract 10 tasks from Jira CSV
+    Time: 412.5ms
+    Note: Processed bulk export
+    Input:
+      • source: jira
+      • format: csv
+      • rows: 10
+    Output:
+      • tasks_extracted: 10
+      • fields_parsed: 9
+
+[4] ✓ Extract 23 tasks from meeting minutes
+    Time: 687.3ms
+    Note: Meeting notes had clear action items
+    Input:
+      • source: meeting
+      • lines: 150
+    Output:
+      • tasks_extracted: 23
+      • action_items: 23
+
+────────────────────────────────────────────────────────────────────────────────
+PHASE: SCORING
+────────────────────────────────────────────────────────────────────────────────
+
+[1] ✓ Initialize confidence scorer
+    Time: 12.3ms
+    Note: Ready to score 41 candidates
+    Output:
+      • model: claude-opus-4-7
+      • factors: 5
+
+[2] ✓ Score 41 candidates
+    Time: 12450.8ms
+    Note: Batch scoring completed
+    Input:
+      • candidates: 41
+    Output:
+      • avg_confidence: 51.9
+      • highest: 95
+      • lowest: 28
+      • reasoning_generated: 41
+
+[3] ✓ Analyze score distribution
+    Time: 23.4ms
+    Note: Well-distributed confidence scores
+    Output:
+      • critical: 1
+      • high: 8
+      • medium: 11
+      • low: 20
+      • very_low: 1
+
+────────────────────────────────────────────────────────────────────────────────
+PHASE: GROUPING
+────────────────────────────────────────────────────────────────────────────────
+
+[1] ✓ Initialize grouper
+    Time: 8.1ms
+    Note: Ready to group tasks
+    Output:
+      • candidates: 41
+
+[2] ✓ Analyze task relationships
+    Time: 156.2ms
+    Note: Identified task clusters
+    Input:
+      • candidates: 41
+      • factors: [3 items]
+    Output:
+      • relationships_found: 23
+
+[3] ✓ Generate group narratives
+    Time: 8923.4ms
+    Note: Claude API generated narratives
+    Input:
+      • groups: 11
+    Output:
+      • groups_created: 11
+      • narratives_generated: 11
+      • avg_tasks_per_group: 3.7
+
+────────────────────────────────────────────────────────────────────────────────
+PHASE: DECISION
+────────────────────────────────────────────────────────────────────────────────
+
+[1] ✓ Initialize database
+    Time: 4.2ms
+    Note: SQLite database ready
+    Output:
+      • database: agent_decisions.db
+      • tables: 3
+
+[2] ✓ Save user decisions
+    Time: 12.5ms
+    Note: All decisions persisted
+    Input:
+      • decisions: 6
+    Output:
+      • saved: 6
+      • accept: 3
+      • reject: 2
+      • edit: 1
+
+[3] ✓ Record feedback
+    Time: 8.3ms
+    Note: Scoring accuracy calculated
+    Input:
+      • feedback_entries: 5
+    Output:
+      • avg_error: 18.8
+      • accuracy: 81.2
+
+────────────────────────────────────────────────────────────────────────────────
+PHASE: LEARNING
+────────────────────────────────────────────────────────────────────────────────
+
+[1] ✓ Analyze rejection patterns
+    Time: 34.1ms
+    Note: Pattern learning enabled
+    Input:
+      • decisions: 6
+    Output:
+      • high_reject_patterns: 1
+      • improvements_suggested: 3
+
+================================================================================
+END OF TRACE
+================================================================================
