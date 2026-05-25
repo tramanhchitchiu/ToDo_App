@@ -6,6 +6,7 @@ from typing import Optional
 from datetime import datetime
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
@@ -19,6 +20,15 @@ app = FastAPI(
     title="Task Mom 24/7 Agent API",
     description="AI-powered task extraction and aggregation service",
     version="1.0.0"
+)
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://localhost:3001"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Global pipeline instance
@@ -145,8 +155,7 @@ async def run_agent(request: RunAgentRequest):
                         "id": g.id,
                         "context_label": g.context_label,
                         "narrative_summary": g.narrative_summary,
-                        "task_count": len(g.candidates),
-                        "tasks": [
+                        "candidates": [
                             {
                                 "id": c.id,
                                 "title": c.title,
@@ -173,6 +182,92 @@ async def run_agent(request: RunAgentRequest):
             status_code=500,
             detail=f"Pipeline execution failed: {str(e)}"
         )
+
+
+@app.post("/run-agent-mock", response_model=RunAgentResponse)
+async def run_agent_mock(request: RunAgentRequest):
+    """
+    Mock agent pipeline — returns pre-computed results instantly (for testing).
+    Same response structure as /run-agent but no API calls.
+    """
+    global pipeline
+
+    if not pipeline:
+        try:
+            init_pipeline()
+        except ValueError as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    # Create mock groups and cache them in the pipeline for later accept/reject operations
+    from agent.models import TaskCandidate, TaskGroup
+
+    mock_candidates_g1 = [
+        TaskCandidate(id="mock_1", title="Review PR #42 for authentication module", source="jira",
+                      priority="urgent", confidence=95, reason="Imperative assignment with tight deadline",
+                      deadline="2026-05-27"),
+        TaskCandidate(id="mock_2", title="Update authentication documentation", source="meeting",
+                      priority="normal", confidence=78, reason="Action item from sprint planning meeting",
+                      deadline="2026-05-28"),
+    ]
+    mock_candidates_g2 = [
+        TaskCandidate(id="mock_3", title="Reply to client delivery status email", source="email",
+                      priority="normal", confidence=88, reason="'Need by Friday' deadline signal detected",
+                      deadline="2026-05-26"),
+        TaskCandidate(id="mock_4", title="Prepare demo slides for May release", source="email",
+                      priority="urgent", confidence=91, reason="Demo by EOD Friday request from stakeholder",
+                      deadline="2026-05-25"),
+    ]
+    mock_candidates_g3 = [
+        TaskCandidate(id="mock_5", title="Review sprint 4 planning document", source="teams",
+                      priority="normal", confidence=72, reason="Action item from planning session",
+                      deadline="2026-05-26"),
+    ]
+
+    mock_groups = [
+        TaskGroup(id="g_mock_1", context_label="Auth Module — Sprint 3",
+                  narrative_summary="OAuth2 authentication tasks for the May release.",
+                  candidates=mock_candidates_g1),
+        TaskGroup(id="g_mock_2", context_label="Client XYZ — Delivery Status",
+                  narrative_summary="Client requested status update by end of week.",
+                  candidates=mock_candidates_g2),
+        TaskGroup(id="g_mock_3", context_label="Sprint 4 Planning",
+                  narrative_summary="Review sprint planning document before session.",
+                  candidates=mock_candidates_g3),
+    ]
+
+    # Cache the groups in pipeline for accept/reject operations
+    pipeline.cache_groups(mock_groups)
+
+    # Return response in the same format as real agent
+    return RunAgentResponse(
+        success=True,
+        data={
+            "total_candidates": 5,
+            "groups": [
+                {
+                    "id": g.id,
+                    "context_label": g.context_label,
+                    "narrative_summary": g.narrative_summary,
+                    "candidates": [
+                        {
+                            "id": c.id,
+                            "title": c.title,
+                            "source": c.source,
+                            "priority": c.priority,
+                            "confidence": c.confidence,
+                            "reason": c.reason,
+                            "deadline": c.deadline,
+                        }
+                        for c in g.candidates
+                    ]
+                }
+                for g in mock_groups
+            ],
+            "trace_enabled": request.trace_enabled
+        },
+        message="Successfully extracted 5 mock tasks into 3 groups (mock mode)",
+        timestamp=str(__import__("datetime").datetime.now().isoformat())
+    )
 
 
 @app.post("/tasks/{task_id}/accept", response_model=TaskDecisionResponse)

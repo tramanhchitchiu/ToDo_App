@@ -39,6 +39,9 @@ class AgentPipeline:
         self.trace_enabled = trace_enabled
         self.tracer = ReasoningTracer() if trace_enabled else None
 
+        # Cache for task candidate lookup (by ID) - used when accepting/rejecting
+        self._candidate_cache: dict = {}
+
         # Store last pipeline result for decision metadata
         self._last_result = None
         self._last_groups = None
@@ -83,6 +86,12 @@ class AgentPipeline:
             self._last_result = result
             self._last_groups = groups
 
+            # Populate candidate cache for quick lookup by ID
+            self._candidate_cache = {}
+            for group in groups:
+                for candidate in group.candidates:
+                    self._candidate_cache[candidate.id] = (candidate, group)
+
             if self.trace_enabled:
                 self.tracer.add_step(
                     phase="pipeline",
@@ -101,8 +110,7 @@ class AgentPipeline:
             if self.trace_enabled:
                 self.tracer.add_step(
                     phase="pipeline",
-                    step="Pipeline execution",
-                    status="error",
+                    step="Pipeline execution failed",
                     error=str(e)
                 )
             raise
@@ -182,6 +190,10 @@ class AgentPipeline:
             for source in sources:
                 task_candidates = await self.extractor.extract_tasks(source)
                 candidates.extend(task_candidates)
+
+        # Ensure globally unique IDs across all sources
+        for idx, candidate in enumerate(candidates):
+            candidate.id = f"task_{idx:04d}"
 
         return candidates
 
@@ -274,8 +286,30 @@ class AgentPipeline:
             return "Tracing disabled"
         return self.tracer.save_trace(format=format)
 
+    def cache_groups(self, groups: List[TaskGroup]) -> None:
+        """Cache task groups (used by mock endpoint)"""
+        self._last_groups = groups
+        self._candidate_cache = {}
+        for group in groups:
+            for candidate in group.candidates:
+                self._candidate_cache[candidate.id] = (candidate, group)
+
     def _get_task_metadata(self, task_id: str) -> Optional[dict]:
-        """Find task metadata from the last pipeline result"""
+        """Find task metadata from the candidate cache or last pipeline result"""
+        # First try the cache (fastest)
+        if task_id in self._candidate_cache:
+            candidate, group = self._candidate_cache[task_id]
+            return {
+                "title": candidate.title,
+                "source": candidate.source,
+                "priority": candidate.priority,
+                "confidence": candidate.confidence,
+                "reason": candidate.reason,
+                "deadline": candidate.deadline,
+                "group_label": group.context_label,
+            }
+
+        # Fallback to searching _last_groups
         if not self._last_groups:
             return None
 

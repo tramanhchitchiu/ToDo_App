@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './Briefing.module.css';
 import { DailyBriefing } from '../components/DailyBriefing';
-import type { TaskSource, TaskPriority, TaskStatus } from '../types/api.types';
+import { apiClient } from '../api/client';
+import type { TaskSource, TaskPriority, TaskStatus, TodoItem } from '../types/api.types';
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
@@ -16,7 +17,7 @@ interface BriefingTask {
 }
 
 // ─── mock data (Phase 1) ──────────────────────────────────────────────────────
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const MOCK_TODAY: BriefingTask[] = [
   {
     id: 'b1',
@@ -47,6 +48,7 @@ const MOCK_TODAY: BriefingTask[] = [
   },
 ];
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const MOCK_TOMORROW: BriefingTask[] = [
   {
     id: 'b4',
@@ -68,6 +70,7 @@ const MOCK_TOMORROW: BriefingTask[] = [
   },
 ];
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const BRIEFING_TEXT =
   'You have 3 tasks due today and 2 tasks due tomorrow. Your top priority is reviewing PR #42 before 18:00 — the auth module release depends on it. Don\'t forget to reply to the client email for Project XYZ before end of day. You\'ve got this!';
 
@@ -96,25 +99,126 @@ const STATUS_STYLE: Record<TaskStatus, { bg: string; color: string; label: strin
 // ─── component ────────────────────────────────────────────────────────────────
 
 export function Briefing() {
-  const [loading, setLoading] = useState(false);
+  const [briefing, setBriefing] = useState<any>(null);
+  const [tasks, setTasks] = useState<TodoItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleRegenerate() {
+  const TODAY = new Date().toISOString().slice(0, 10);
+  const TOMORROW = new Date(new Date(TODAY + 'T00:00:00').getTime() + 86400000).toISOString().slice(0, 10);
+
+  function formatDeadlineLabel(deadline?: string): string {
+    if (!deadline) return 'No deadline';
+    if (deadline === TODAY) return 'Today';
+    if (deadline === TOMORROW) return 'Tomorrow';
+    const d = new Date(deadline + 'T00:00:00');
+    return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+  }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const [briefingData, tasksData] = await Promise.all([
+          apiClient.getDailyBriefing(),
+          apiClient.getTasks(),
+        ]);
+        setBriefing(briefingData);
+        setTasks(tasksData || []);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load briefing');
+        setBriefing(null);
+        setTasks([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  async function handleRegenerate() {
     setLoading(true);
-    setTimeout(() => setLoading(false), 1400);
+    try {
+      const briefingData = await apiClient.getDailyBriefing();
+      setBriefing(briefingData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to regenerate briefing');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const todayTasks: BriefingTask[] = tasks
+    .filter((t) => t.deadline === TODAY)
+    .map((t) => ({
+      id: t.id,
+      title: t.title,
+      source: t.source,
+      priority: t.priority,
+      status: t.status,
+      deadlineLabel: formatDeadlineLabel(t.deadline),
+      deadlineUrgent: true,
+    }));
+
+  const tomorrowTasks: BriefingTask[] = tasks
+    .filter((t) => t.deadline === TOMORROW)
+    .map((t) => ({
+      id: t.id,
+      title: t.title,
+      source: t.source,
+      priority: t.priority,
+      status: t.status,
+      deadlineLabel: formatDeadlineLabel(t.deadline),
+      deadlineUrgent: false,
+    }));
+
+  const generatedAt = briefing?.timestamp
+    ? new Date(briefing.timestamp).toLocaleDateString('en-GB', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : 'Now';
+
+  if (error) {
+    return (
+      <div style={{ padding: '20px', color: '#EF4444', textAlign: 'center' }}>
+        <p>❌ {error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          style={{
+            marginTop: '12px',
+            padding: '8px 16px',
+            background: '#F26522',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}
+        >
+          Retry
+        </button>
+      </div>
+    );
   }
 
   return (
     <>
       <DailyBriefing
         name="Linh"
-        text={BRIEFING_TEXT}
-        generatedAt="Monday, 25 May 2026, 08:00"
+        text={briefing?.recommendation || BRIEFING_TEXT}
+        generatedAt={generatedAt}
         onRegenerate={handleRegenerate}
         loading={loading}
       />
 
-      <TaskSection title="Today's Tasks" tasks={MOCK_TODAY} />
-      <TaskSection title="Tomorrow's Tasks" tasks={MOCK_TOMORROW} />
+      {!loading && <TaskSection title="Today's Tasks" tasks={todayTasks} />}
+      {!loading && <TaskSection title="Tomorrow's Tasks" tasks={tomorrowTasks} />}
     </>
   );
 }
@@ -140,9 +244,9 @@ function TaskSection({ title, tasks }: { title: string; tasks: BriefingTask[] })
 // ─── TaskRow ─────────────────────────────────────────────────────────────────
 
 function TaskRow({ task }: { task: BriefingTask }) {
-  const src = SOURCE_STYLE[task.source];
-  const sta = STATUS_STYLE[task.status];
-  const priColor = PRIORITY_COLOR[task.priority];
+  const src = SOURCE_STYLE[task.source] || { bg: 'rgba(156,163,175,0.15)', color: '#9CA3AF', label: 'Unknown' };
+  const sta = STATUS_STYLE[task.status] || { bg: 'rgba(156,163,175,0.15)', color: '#9CA3AF', label: 'Unknown' };
+  const priColor = PRIORITY_COLOR[task.priority] || '#9CA3AF';
   const isDone = task.status === 'done';
 
   return (

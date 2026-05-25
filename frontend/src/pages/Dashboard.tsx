@@ -4,8 +4,9 @@ import { apiClient } from '../api/client';
 import type { TodoItem, TaskSource, TaskPriority, TaskStatus } from '../types/api.types';
 
 // ─── mock data (Phase 1) ──────────────────────────────────────────────────────
-
-const MOCK_ITEMS: TodoItem[] = [
+// Note: Mock items kept for reference during Phase 2 transition
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _MOCK_ITEMS: TodoItem[] = [
   {
     id: '1',
     title: 'Review PR #42 for authentication module',
@@ -105,22 +106,6 @@ const STATUS_STYLE: Record<TaskStatus, { bg: string; color: string; label: strin
   done:        { bg: 'rgba(16,185,129,0.15)',  color: '#10B981', label: 'Done'        },
 };
 
-// ─── helpers ──────────────────────────────────────────────────────────────────
-
-function formatDeadline(deadline: string): { text: string; urgent: boolean } {
-  if (deadline === TODAY) return { text: 'Today', urgent: true };
-  const d = new Date(deadline + 'T00:00:00');
-  const today = new Date(TODAY + 'T00:00:00');
-  if (d < today) return { text: 'Overdue', urgent: true };
-  const tomorrow = new Date(TODAY + 'T00:00:00');
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  if (deadline === tomorrow.toISOString().slice(0, 10)) return { text: 'Tomorrow', urgent: false };
-  return {
-    text: d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
-    urgent: false,
-  };
-}
-
 // ─── filter types ─────────────────────────────────────────────────────────────
 
 type DueDateFilter = 'all' | 'overdue' | 'today' | 'tomorrow' | 'this_week' | 'custom';
@@ -132,10 +117,19 @@ function addDays(base: string, n: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-const TOMORROW   = addDays(TODAY, 1);
-const WEEK_END   = addDays(TODAY, 7);
-const YESTERDAY  = addDays(TODAY, -1);
-const WEEK_START = addDays(TODAY, -7);
+function formatDeadline(deadline: string, today: string): { text: string; urgent: boolean } {
+  if (deadline === today) return { text: 'Today', urgent: true };
+  const d = new Date(deadline + 'T00:00:00');
+  const todayDate = new Date(today + 'T00:00:00');
+  if (d < todayDate) return { text: 'Overdue', urgent: true };
+  const tomorrow = new Date(today + 'T00:00:00');
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  if (deadline === tomorrow.toISOString().slice(0, 10)) return { text: 'Tomorrow', urgent: false };
+  return {
+    text: d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
+    urgent: false,
+  };
+}
 
 // ─── component ────────────────────────────────────────────────────────────────
 
@@ -147,6 +141,10 @@ interface DashboardProps {
 
 export function Dashboard({ onTaskClick }: DashboardProps) {
   const TODAY = new Date().toISOString().slice(0, 10);
+  const TOMORROW   = addDays(TODAY, 1);
+  const WEEK_END   = addDays(TODAY, 7);
+  const YESTERDAY  = addDays(TODAY, -1);
+  const WEEK_START = addDays(TODAY, -7);
 
   const [tasks, setTasks] = useState<TodoItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -224,7 +222,7 @@ export function Dashboard({ onTaskClick }: DashboardProps) {
 
       return true;
     });
-  }, [tasks, search, sourceFilter, statusFilter, priorityFilter, dueDateFilter, dueDateFrom, dueDateTo, doneDateFilter, doneDateFrom, doneDateTo]);
+  }, [tasks, search, sourceFilter, statusFilter, priorityFilter, dueDateFilter, dueDateFrom, dueDateTo, doneDateFilter, doneDateFrom, doneDateTo, TODAY, TOMORROW, WEEK_END, WEEK_START, YESTERDAY]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -376,7 +374,8 @@ export function Dashboard({ onTaskClick }: DashboardProps) {
             <p>Loading tasks...</p>
           </div>
         ) : (
-        <table className={styles.table}>
+          <div>
+            <table className={styles.table}>
           <thead className={styles.tableHead}>
             <tr>
               <th>#</th>
@@ -397,10 +396,10 @@ export function Dashboard({ onTaskClick }: DashboardProps) {
               </tr>
             ) : (
               pageItems.map((task, i) => {
-                const src = SOURCE_STYLE[task.source];
-                const pri = PRIORITY_STYLE[task.priority];
-                const sta = STATUS_STYLE[task.status];
-                const dl = task.deadline ? formatDeadline(task.deadline) : null;
+                const src = SOURCE_STYLE[task.source] || { bg: 'rgba(156,163,175,0.15)', color: '#9CA3AF', label: 'Unknown' };
+                const pri = PRIORITY_STYLE[task.priority] || { bg: 'rgba(156,163,175,0.15)', color: '#9CA3AF', label: 'N/A' };
+                const sta = STATUS_STYLE[task.status] || { bg: 'rgba(156,163,175,0.15)', color: '#9CA3AF', label: 'Unknown' };
+                const dl = task.deadline ? formatDeadline(task.deadline, TODAY) : null;
 
                 return (
                   <tr key={task.id} className={styles.tableRow} onClick={() => onTaskClick?.(task)}>
@@ -451,10 +450,10 @@ export function Dashboard({ onTaskClick }: DashboardProps) {
               })
             )}
           </tbody>
-        </table>
+            </table>
 
-        {/* Pagination */}
-        <div className={styles.pagination}>
+            {/* Pagination */}
+            <div className={styles.pagination}>
           <span className={styles.paginationInfo}>
             Showing {filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}–
             {Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
@@ -483,8 +482,9 @@ export function Dashboard({ onTaskClick }: DashboardProps) {
             >
               ›
             </button>
+            </div>
+            </div>
           </div>
-        </div>
         )}
       </div>
     </>

@@ -3,10 +3,14 @@ import type { TodoItem, TaskCandidate, TaskGroup, DailyBriefingData } from '../t
 
 const API_BASE_URL = 'http://localhost:8000';
 
+// Use mock mode by default (for testing and when API token is exhausted)
+// To use real API: localStorage.setItem('useMockMode', 'false')
+const USE_MOCK_MODE = localStorage.getItem('useMockMode') !== 'false';
+
 // Create axios instance
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000,
+  timeout: 180000, // 3 minutes default timeout
   headers: {
     'Content-Type': 'application/json',
   },
@@ -32,12 +36,14 @@ export const apiClient = {
   },
 
   /**
-   * Run agent pipeline
+   * Run agent pipeline (or mock for testing)
    */
   async runAgent(traceEnabled = true) {
-    const response = await axiosInstance.post('/run-agent', {
+    const endpoint = USE_MOCK_MODE ? '/run-agent-mock' : '/run-agent';
+    const timeout = USE_MOCK_MODE ? 30000 : 300000; // 30s for mock, 5min for real
+    const response = await axiosInstance.post(endpoint, {
       trace_enabled: traceEnabled,
-    });
+    }, { timeout });
     return response.data;
   },
 
