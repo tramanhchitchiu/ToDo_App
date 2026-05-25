@@ -152,7 +152,7 @@ async def test_real_samples():
         print(f"  {priority.upper()}: {len(candidates)} tasks")
 
     # Save detailed results
-    output_file = Path("real_samples_results.json")
+    output_file = Path("tests/results/real_samples_results.json")
     output_data = {
         "test_date": "2026-05-25",
         "total_candidates": len(all_candidates),

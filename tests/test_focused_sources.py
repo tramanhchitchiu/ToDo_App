@@ -163,7 +163,7 @@ async def test_focused_sources():
     print(f"Deadline info: {with_deadline}/{len(all_candidates)} tasks have deadlines")
 
     # Save results
-    output_file = Path("focused_sources_results.json")
+    output_file = Path("tests/results/focused_sources_results.json")
     output_data = {
         "test_date": "2026-05-25",
         "total_candidates": len(all_candidates),

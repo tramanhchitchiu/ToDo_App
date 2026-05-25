@@ -3,7 +3,7 @@
 > "không quên, không giận, không hối."  
 > *"Don't forget, don't get angry, don't regret"* — Vietnamese wisdom
 
-**Status:** 🚀 Phase 1 Complete (Extraction Engine) | Phase 2-7 In Progress
+**Status:** ✅ Phase 1-2 Complete | 🚀 Phase 3-7 In Progress
 
 ---
 
@@ -17,10 +17,15 @@ pip install -r requirements.txt
 cp .env.example .env
 # Edit .env: ANTHROPIC_API_KEY=sk-ant-...
 
-# 3. Test extraction
-python3 test_focused_sources.py
+# 3. Run Phase 1: Extract tasks
+PYTHONPATH=. python3 tests/test_focused_sources.py
+# Expected: 41 tasks extracted from Jira + Meeting
 
-# Expected output: 41 tasks extracted from Jira + Meeting
+# 4. Run Phase 2: Score tasks
+PYTHONPATH=. python3 tests/test_scoring.py
+# Expected: 41 tasks scored (0-100) with reasoning
+
+# Results saved to tests/results/
 ```
 
 ---
@@ -74,15 +79,33 @@ Deadline parsing:     21 tasks ✓
 
 ---
 
-### 🚀 Phase 2: Confidence Scoring — NEXT
+### ✅ Phase 2: Confidence Scoring — COMPLETE
 
-**What's Needed:**
-- [ ] Score each task 0-100
-- [ ] Add one-line reasoning
-- [ ] Consider: deadline, urgency, clarity, sender importance
-- [ ] Test with extracted candidates
+**What's Done:**
+- ✅ ConfidenceScorer class with 5-factor algorithm
+- ✅ Claude API-powered intelligent scoring (0-100)
+- ✅ One-line reasoning for every score
+- ✅ Fallback rule-based scoring for resilience
+- ✅ 41 candidates scored with confidence scores
 
-**Estimated:** 1 hour
+**Test Results:**
+```
+Total scored:          41 candidates ✓
+Average score:         51.9/100
+Highest score:         95/100 (Google OAuth2 - urgent, due in 3 days)
+Lowest score:          28/100 (distant deadline, vague scope)
+Distribution:
+  Critical (90-100):   1 task
+  High (70-89):        8 tasks
+  Medium (50-69):     11 tasks
+  Low (30-49):        20 tasks
+  Very Low (0-29):     1 task
+```
+
+**Files:**
+- `agent/scoring/confidence.py` — Confidence scoring engine
+- `tests/test_scoring.py` — Scoring test
+- `tests/results/scoring_results.json` — Results
 
 ---
 
@@ -248,58 +271,254 @@ python3 test_focused_sources.py         # Real samples test
 
 ## Project Structure
 
+### Complete Directory Tree
+
 ```
 ToDo_App-main/
-├── README.md                           ← You are here
-├── CLAUDE.md                           ← Development context
+├── README.md                           ← Main project documentation
+├── CLAUDE.md                           ← Development context & constraints
 │
-├── agent/                              ← AI AGENT CORE
-│   ├── models.py                       ✅ Data structures
-│   ├── extraction/
-│   │   └── extractor.py                ✅ Task extraction engine
-│   ├── scoring/
-│   │   └── confidence.py               🚀 (Phase 2)
-│   ├── grouping/
-│   │   └── grouper.py                  🚀 (Phase 3)
-│   ├── decisions/
-│   │   └── store.py                    🚀 (Phase 4)
-│   ├── reasoning/
-│   │   └── tracer.py                   🚀 (Phase 5)
-│   └── connectors/
-│       └── jira_connector.py           ✅ Jira + Meeting
+├── agent/                              ← 🤖 AI AGENT CORE (Python)
+│   ├── __init__.py
+│   ├── models.py                       ✅ Phase 1: Data structures (TaskCandidate, TaskGroup, TodoItem)
+│   │
+│   ├── extraction/                     ✅ Phase 1: Task Extraction
+│   │   ├── __init__.py
+│   │   └── extractor.py                Task extraction engine using Claude API
+│   │
+│   ├── scoring/                        ✅ Phase 2: Confidence Scoring (COMPLETE)
+│   │   ├── __init__.py
+│   │   └── confidence.py               5-factor confidence scorer (0-100)
+│   │
+│   ├── grouping/                       🚀 Phase 3: Thread Intelligence (Planned)
+│   │   └── __init__.py
+│   │
+│   ├── decisions/                      🚀 Phase 4: Decision Store (Planned)
+│   │   └── __init__.py
+│   │
+│   ├── reasoning/                      🚀 Phase 5: Reasoning Trace (Planned)
+│   │   └── __init__.py
+│   │
+│   └── connectors/                     ✅ Data source connectors
+│       ├── __init__.py
+│       └── jira_connector.py           Jira (API, CSV, text) + Meeting minutes
 │
-├── data/
-│   ├── mock_sources.py                 ✅ Mock data
-│   └── samples/                        ✅ Real test data
-│       ├── jira_issue.txt
-│       ├── jira_export.csv
-│       └── meeting_minutes_2.txt
+├── data/                               📊 Test Data
+│   ├── mock_sources.py                 ✅ 7 mock data sources for testing
+│   │
+│   └── samples/                        ✅ Real sample data files
+│       ├── jira_issue.txt              Jira issue in text format
+│       ├── jira_export.csv             Jira bulk export (10 issues)
+│       ├── meeting_minutes_2.txt       Meeting minutes (23 action items)
+│       └── meeting_notes.txt           Additional meeting notes
 │
 ├── frontend/                           ✅ React UI (COMPLETE)
+│   ├── designs/                        🎨 Stitch design mockups (8 screens)
+│   │   ├── s01-login.png               Login page
+│   │   ├── s02-dashboard.png           Main dashboard
+│   │   ├── s03-task detail.png         Task detail view
+│   │   ├── s04-task confirmation.png   Accept/reject confirmation
+│   │   ├── s05-data source settings.png Data source config
+│   │   ├── s06-notification settings.png Notification settings
+│   │   ├── s07-daily briefing.png      Daily briefing widget
+│   │   └── s08-user management.png     Admin user management
+│   │
 │   ├── src/
-│   │   ├── pages/                      8 pages implemented
-│   │   ├── components/                 4 components
-│   │   ├── constants/colors.ts         Design tokens
-│   │   └── types/api.types.ts          Type definitions
-│   └── package.json
+│   │   ├── pages/                      8 page components (each .tsx + .module.css)
+│   │   │   ├── AdminUsers.tsx/.css      User management (admin)
+│   │   │   ├── Briefing.tsx/.css        Daily briefing stats
+│   │   │   ├── ConfirmTasks.tsx/.css    Accept/reject interface
+│   │   │   ├── Dashboard.tsx/.css       Main task dashboard
+│   │   │   ├── DataSources.tsx/.css     Jira/Email/Slack config
+│   │   │   ├── Login.tsx/.css           Authentication
+│   │   │   ├── Notifications.tsx/.css   Settings & alerts
+│   │   │   └── TaskDetail.tsx/.css      Single task details
+│   │   │
+│   │   ├── components/                 4 reusable components (each .tsx + .module.css)
+│   │   │   ├── AppShell.tsx/.css       Sidebar + header wrapper
+│   │   │   ├── TaskCard.tsx/.css       Individual task card
+│   │   │   ├── DailyBriefing.tsx/.css  Stats widget
+│   │   │   └── FilterBar.tsx/.css      Priority/source/sort filters
+│   │   │
+│   │   ├── constants/
+│   │   │   └── colors.ts               Design tokens (FPT orange, dark mode, etc.)
+│   │   │
+│   │   ├── types/
+│   │   │   └── api.types.ts            TypeScript interfaces (Task, TaskGroup, etc.)
+│   │   │
+│   │   └── App.tsx                     React root component
+│   │
+│   ├── public/                         Static assets
+│   ├── package.json                    Dependencies (React, Axios, TypeScript)
+│   └── README.md                       Frontend-specific docs
 │
-├── backend/                            🚀 (Other developer)
-│   ├── agent_service.py                (FastAPI endpoints)
-│   └── ...
+├── backend/                            🚀 FastAPI Backend (In Progress)
+│   └── (To be implemented by backend dev)
 │
-├── tests/
-│   ├── test_extraction.py              ✅ Mock data test
-│   └── test_focused_sources.py         ✅ Real data test
+├── tests/                              🧪 Test Suite
+│   ├── test_extraction.py              ✅ Mock data extraction test
+│   ├── test_focused_sources.py         ✅ Focused samples test (3 sources)
+│   ├── test_real_samples.py            ✅ Extended real samples test
+│   ├── test_scoring.py                 ✅ Confidence scoring test
+│   │
+│   └── results/                        📊 Test Results (all tests save here)
+│       ├── README.md                   Test results documentation
+│       ├── extraction_results.json     Mock data extraction results
+│       ├── focused_sources_results.json Real sample extraction (Phase 1)
+│       ├── real_samples_results.json   Extended sample results
+│       └── scoring_results.json        Confidence scoring results (Phase 2)
 │
-├── docs/
-│   ├── PHASE1_REPORT.md                ✅ Extraction audit
-│   ├── AGENT_IMPLEMENTATION_PLAN.md    ✅ Full implementation guide
-│   ├── AGENT_SETUP.md                  ✅ Quick start
-│   └── ...
-│
-├── .env.example                        ✅ Template
-├── requirements.txt                    ✅ Dependencies
-└── .gitignore                          ✅ Security
+├── .env.example                        Environment template (API keys)
+├── requirements.txt                    Python dependencies
+├── .gitignore                          Git ignore rules
+└── LICENSE                             MIT License
+```
+
+---
+
+## Folder Organization Guide
+
+### 📁 `agent/` — AI Agent Core (Python)
+The heart of Task Mom 24/7. Implements task extraction, scoring, grouping, and learning.
+
+**Phase-based Structure:**
+- **Phase 1 (extraction/)**: Extract tasks from unstructured text → TaskCandidate objects
+- **Phase 2 (scoring/)**: Score each candidate 0-100 → confidence + reasoning
+- **Phase 3 (grouping/)**: Group related tasks → TaskGroup with narrative summaries
+- **Phase 4 (decisions/)**: Persist user decisions → SQLite for learning
+- **Phase 5 (reasoning/)**: Log reasoning steps → human-readable traces
+
+**Shared:**
+- `models.py` — Data structures used across all phases
+- `connectors/` — Connect to Jira, Email, Slack APIs
+
+### 📊 `data/` — Test Data
+Mock and real sample data for testing and validation.
+
+- **mock_sources.py** — 7 artificially generated sources for unit testing
+- **samples/** — Real Jira issues, CSV exports, and meeting minutes
+  - Ensures extraction works on realistic input
+
+### 🎨 `frontend/` — React UI (Create React App)
+Complete user-facing application in React + TypeScript + CSS Modules.
+
+**Organized by feature:**
+- **pages/** — Full-page components (Dashboard, Settings, etc.)
+- **components/** — Reusable UI pieces (TaskCard, FilterBar, etc.)
+- **designs/** — Stitch mockups showing what each page should look like
+- **constants/** — Color tokens and design system
+- **types/** — TypeScript interfaces for API contracts
+
+### 🧪 `tests/` — Test Suite
+All tests and their results in one place.
+
+- **Root level** — Test scripts (test_extraction.py, test_scoring.py, etc.)
+- **results/** — JSON output files from running tests
+  - Each test saves its results here automatically
+  - `results/README.md` documents each result file
+
+### 🔧 Config Files
+- **.env.example** → Copy to `.env`, add your ANTHROPIC_API_KEY
+- **requirements.txt** → `pip install -r requirements.txt`
+- **CLAUDE.md** → Development constraints and design rules
+
+---
+
+## Test Results Organization
+
+All test results are saved to `tests/results/` for centralized organization and easy tracking.
+
+### Result Files
+
+| File | Phase | Test | Description |
+|------|-------|------|-------------|
+| `extraction_results.json` | 1 | `test_extraction.py` | Mock data extraction (7 sources) |
+| `focused_sources_results.json` | 1 | `test_focused_sources.py` | Real sample extraction (Jira + Meeting) |
+| `real_samples_results.json` | 1 | `test_real_samples.py` | Extended sample extraction |
+| `scoring_results.json` | 2 | `test_scoring.py` | Confidence scoring of 41 candidates |
+
+### Running Tests
+
+```bash
+# All tests save results to tests/results/ automatically
+
+# Phase 1: Extract from mock data
+python3 tests/test_extraction.py
+
+# Phase 1: Extract from focused sources
+PYTHONPATH=. python3 tests/test_focused_sources.py
+
+# Phase 1: Extract from real samples
+PYTHONPATH=. python3 tests/test_real_samples.py
+
+# Phase 2: Score extracted tasks
+PYTHONPATH=. python3 tests/test_scoring.py
+```
+
+### View Results
+
+Each result file contains:
+- **Timestamps** of when tests were run
+- **Statistics** on extraction/scoring performance
+- **Detailed candidate lists** with all extracted metadata
+- **Quality metrics** (source coverage, priority detection, etc.)
+
+See `tests/results/README.md` for detailed documentation of each result file.
+
+---
+
+## File Organization Conventions
+
+### Python (Agent Code)
+- **Module structure**: One class per file, descriptive names
+- **Test files**: `test_*.py` in `tests/` directory
+- **Result files**: Saved to `tests/results/*.json` automatically
+- **Naming**: `snake_case` for files/functions, `PascalCase` for classes
+
+Examples:
+```
+agent/extraction/extractor.py      → TaskExtractor class
+agent/scoring/confidence.py         → ConfidenceScorer class
+tests/test_scoring.py              → test_scoring() async function
+tests/results/scoring_results.json  → test results (auto-saved)
+```
+
+### Frontend (React/TypeScript)
+- **File structure**: One component per file + accompanying CSS Module
+- **Naming**: `PascalCase.tsx` + `PascalCase.module.css`
+- **No UI library** — custom components only
+- **State management** — useState/useEffect only, no Redux/Context
+
+Examples:
+```
+frontend/src/pages/Dashboard.tsx         → Page component
+frontend/src/pages/Dashboard.module.css  → Styles (CSS Modules)
+frontend/src/components/TaskCard.tsx     → Reusable component
+frontend/src/types/api.types.ts          → TypeScript interfaces
+frontend/src/constants/colors.ts         → Design tokens
+```
+
+### Test Results
+- **Auto-saved to**: `tests/results/*.json`
+- **Naming pattern**: `{test-name}_results.json`
+- **Each contains**: metadata, statistics, detailed candidate lists
+- **Documented in**: `tests/results/README.md`
+
+Examples:
+```
+tests/results/extraction_results.json      → From test_extraction.py
+tests/results/scoring_results.json         → From test_scoring.py
+tests/results/focused_sources_results.json → From test_focused_sources.py
+tests/results/real_samples_results.json    → From test_real_samples.py
+```
+
+### Sample Data
+Located in `data/samples/`:
+```
+jira_issue.txt              Single Jira issue in text format
+jira_export.csv            10 Jira issues in CSV format
+meeting_minutes_2.txt      Real meeting with 23 action items
+meeting_notes.txt          Additional meeting notes
 ```
 
 ---
@@ -311,8 +530,8 @@ ToDo_App-main/
 | Hour | Phase | Status | Deliverable |
 |------|-------|--------|-------------|
 | 1-2 | Phase 1: Extraction | ✅ DONE | 41 tasks extracted |
-| 2-3 | Phase 2: Scoring | 🚀 NEXT | Confidence scores |
-| 3-4 | Phase 3: Grouping | 🚀 PLANNED | Task groups |
+| 2-3 | Phase 2: Scoring | ✅ DONE | Confidence scores (avg 51.9/100) |
+| 3-4 | Phase 3: Grouping | 🚀 NEXT | Task groups |
 | 4-5 | Phase 4: Store | 🚀 PLANNED | Decision persistence |
 | 5-6 | Phase 5: Trace | 🚀 PLANNED | Reasoning logs |
 | 6-7 | Phase 6: Pipeline | 🚀 PLANNED | Agent orchestration |
@@ -434,7 +653,7 @@ TRACE_LOG=./agent_trace.log          # Reasoning trace file
 
 **Frontend:** ✅ Complete (React UI)  
 **Backend API:** 🚀 In Progress (FastAPI endpoints)  
-**Agent Core:** 🚀 Phase 1 Done, Phase 2-7 In Progress (Claude extraction + scoring)
+**Agent Core:** ✅ Phase 1-2 Done, 🚀 Phase 3-7 In Progress (extraction + scoring + grouping)
 
 ---
 
@@ -465,5 +684,6 @@ Part of FPT's AI Hackathon 2026
 ---
 
 **Last Updated:** 2026-05-25  
-**Phase 1 Status:** ✅ COMPLETE  
-**Next Phase:** Confidence Scoring (Phase 2)
+**Phase 1 Status:** ✅ COMPLETE (41 tasks extracted)  
+**Phase 2 Status:** ✅ COMPLETE (41 tasks scored, avg 51.9/100)  
+**Next Phase:** 🚀 Thread Intelligence (Phase 3)

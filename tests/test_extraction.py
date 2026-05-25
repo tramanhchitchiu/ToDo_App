@@ -88,7 +88,7 @@ async def main():
         print(f"  {priority.upper()}: {count} tasks")
 
     # Save results for next phase
-    output_file = Path("extraction_results.json")
+    output_file = Path("tests/results/extraction_results.json")
     output_data = {
         "total_candidates": len(all_candidates),
         "by_source": {src: len(cands) for src, cands in by_source.items()},
