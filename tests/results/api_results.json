@@ -1,0 +1,38 @@
+{
+  "timestamp": "2026-05-26T00:31:16.645528",
+  "phase": "FastAPI Integration",
+  "endpoints_tested": [
+    {
+      "path": "/health",
+      "method": "GET",
+      "status": "\u2713"
+    },
+    {
+      "path": "/run-agent",
+      "method": "POST",
+      "status": "\u2713"
+    },
+    {
+      "path": "/tasks/{id}/accept",
+      "method": "POST",
+      "status": "\u2713"
+    },
+    {
+      "path": "/tasks/{id}/reject",
+      "method": "POST",
+      "status": "\u2713"
+    },
+    {
+      "path": "/stats",
+      "method": "GET",
+      "status": "\u2713"
+    },
+    {
+      "path": "/trace",
+      "method": "GET",
+      "status": "\u2713"
+    }
+  ],
+  "test_status": "success",
+  "all_endpoints_working": true
+}
