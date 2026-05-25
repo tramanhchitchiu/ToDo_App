@@ -1,0 +1,448 @@
+{
+  "timestamp": "2026-05-26T00:01:55.361976",
+  "phase": "Extraction + Scoring + Grouping",
+  "total_candidates": 41,
+  "total_groups": 11,
+  "groups": [
+    {
+      "id": "g_0001",
+      "context_label": "OAuth2 / Authentication \u2014 Google SSO Release (May 29)",
+      "narrative_summary": "John Developer is leading the Google OAuth2 authentication rollout with a hard deadline of 2026-05-29. Core implementation (c_jira_0) blocks downstream work: secure refresh token storage, auto-refresh, integration tests, code review, security review, QA handoff, and documentation. Security review (c_jira_7) and encrypted token storage (c_jira_1) are urgent compliance gates before merge.",
+      "task_count": 8,
+      "candidates": [
+        {
+          "id": "c_jira_0",
+          "title": "Update email validation regex to support IDN",
+          "source": "jira",
+          "priority": "normal",
+          "confidence": 36,
+          "reason": "Clear actionable task but no deadline, normal priority, unassigned, and independent scope = 36",
+          "deadline": null,
+          "assignee": null,
+          "invalidated": false
+        },
+        {
+          "id": "c_jira_1",
+          "title": "Run tests before production deployment",
+          "source": "jira",
+          "priority": "urgent",
+          "confidence": 71,
+          "reason": "Urgent priority + clear actionable task + blocks deployment, but no deadline and unassigned = 71",
+          "deadline": null,
+          "assignee": null,
+          "invalidated": false
+        },
+        {
+          "id": "c_jira_2",
+          "title": "Implement token refresh mechanism",
+          "source": "jira",
+          "priority": "urgent",
+          "confidence": 68,
+          "reason": "Urgent priority + assigned + clear intent, but no deadline and implementation details vague = 68",
+          "deadline": null,
+          "assignee": "John Developer",
+          "invalidated": false
+        },
+        {
+          "id": "c_jira_3",
+          "title": "Write integration tests for OAuth2",
+          "source": "jira",
+          "priority": "normal",
+          "confidence": 48,
+          "reason": "Clear actionable task, normal priority, assigned, but no deadline = 48",
+          "deadline": null,
+          "assignee": "John Developer",
+          "invalidated": false
+        },
+        {
+          "id": "c_jira_4",
+          "title": "Update API documentation",
+          "source": "jira",
+          "priority": "normal",
+          "confidence": 36,
+          "reason": "Normal priority, no deadline, clear scope but assigned to someone else = 36",
+          "deadline": null,
+          "assignee": "John Developer",
+          "invalidated": false
+        },
+        {
+          "id": "c_jira_5",
+          "title": "Get code reviewed by 2+ team members",
+          "source": "jira",
+          "priority": "normal",
+          "confidence": 48,
+          "reason": "Clear actionable task + normal priority + assigned, but no deadline and enables rather than blocks work = 48",
+          "deadline": null,
+          "assignee": "John Developer",
+          "invalidated": false
+        },
+        {
+          "id": "c_jira_6",
+          "title": "Notify QA when PR is ready",
+          "source": "jira",
+          "priority": "normal",
+          "confidence": 53,
+          "reason": "Clear actionable task, normal priority, no deadline, but enables QA work downstream = 53",
+          "deadline": null,
+          "assignee": "John Developer",
+          "invalidated": false
+        },
+        {
+          "id": "c_jira_7",
+          "title": "Complete security review before merge",
+          "source": "jira",
+          "priority": "urgent",
+          "confidence": 71,
+          "reason": "Urgent + blocks merge + clear task, but no deadline and unassigned = 71",
+          "deadline": null,
+          "assignee": null,
+          "invalidated": false
+        }
+      ]
+    },
+    {
+      "id": "g_0002",
+      "context_label": "Auth Expansion \u2014 Broader SSO/MFA & Enterprise SSO",
+      "narrative_summary": "Broader authentication initiatives extending beyond the Google OAuth2 release: a generalized auth module covering Google+GitHub+MFA, and an enterprise SSO integration for customers (top customer request, due 2026-07-01). The unassigned 'user authentication module' task overlaps significantly with the Google OAuth2 epic and may be a duplicate or parent epic.",
+      "task_count": 1,
+      "candidates": [
+        {
+          "id": "c_meeting_18",
+          "title": "Build SSO integration",
+          "source": "meeting",
+          "priority": "normal",
+          "confidence": 38,
+          "reason": "Far-off deadline (35 days), normal priority, somewhat vague scope, assigned to Auth Team = 38",
+          "deadline": "2026-07-01",
+          "assignee": "Auth Team",
+          "invalidated": false
+        }
+      ]
+    },
+    {
+      "id": "g_0003",
+      "context_label": "Payments \u2014 Bug Fix & Security Audit",
+      "narrative_summary": "Payment gateway has an urgent NullPointerException affecting 2% of refund transactions and requires a full PCI/security audit of the gateway integration. Bug fix should precede or run in parallel with the audit; both are urgent and currently unassigned \u2014 needs ownership assigned ASAP.",
+      "task_count": 0,
+      "candidates": []
+    },
+    {
+      "id": "g_0004",
+      "context_label": "Platform Modernization \u2014 DB Migration & Infrastructure",
+      "narrative_summary": "Platform modernization initiative spanning PostgreSQL 14 migration, pre-prod test validation, infrastructure assessment, migration planning, and staging environment setup. Sequential dependencies: assessment (Jun 5) \u2192 migration plan (Jun 10) \u2192 staging (Jun 20) \u2192 tests \u2192 production cutover. Owned across DevOps Lead, Tech Lead, and DevOps.",
+      "task_count": 3,
+      "candidates": [
+        {
+          "id": "c_meeting_2",
+          "title": "Complete infrastructure assessment",
+          "source": "meeting",
+          "priority": "normal",
+          "confidence": 53,
+          "reason": "Due in 9 days + normal priority + clear task assigned to DevOps Lead = 53",
+          "deadline": "2026-06-05",
+          "assignee": "DevOps Lead",
+          "invalidated": false
+        },
+        {
+          "id": "c_meeting_3",
+          "title": "Prepare migration plan",
+          "source": "meeting",
+          "priority": "normal",
+          "confidence": 53,
+          "reason": "Deadline 2 weeks out + normal priority + clear scope + assigned to Tech Lead, enables future work = 53",
+          "deadline": "2026-06-10",
+          "assignee": "Tech Lead",
+          "invalidated": false
+        },
+        {
+          "id": "c_meeting_4",
+          "title": "Set up staging environment",
+          "source": "meeting",
+          "priority": "normal",
+          "confidence": 38,
+          "reason": "Normal priority, distant deadline (24 days), clear task but assigned to DevOps team enabling other work = 38",
+          "deadline": "2026-06-20",
+          "assignee": "DevOps",
+          "invalidated": false
+        }
+      ]
+    },
+    {
+      "id": "g_0005",
+      "context_label": "AI Feature Development \u2014 Q2 Initiative",
+      "narrative_summary": "AI feature initiative led by AI Lead: architecture design (Jun 1) feeds engineering implementation of Claude-API-based task extraction (Jun 15), with parallel training dataset prep (Jun 10) and user testing (Jun 25). Architecture is the critical-path blocker for the engineering and data work.",
+      "task_count": 4,
+      "candidates": [
+        {
+          "id": "c_meeting_5",
+          "title": "Design AI architecture",
+          "source": "meeting",
+          "priority": "normal",
+          "confidence": 68,
+          "reason": "Due in 5 days + normal priority + clear architecture task assigned to AI Lead, enables downstream AI work = 68",
+          "deadline": "2026-06-01",
+          "assignee": "AI Lead",
+          "invalidated": false
+        },
+        {
+          "id": "c_meeting_6",
+          "title": "Implement task extraction module",
+          "source": "meeting",
+          "priority": "normal",
+          "confidence": 48,
+          "reason": "Clear actionable task assigned to engineer, normal priority, deadline 19 days out = 48",
+          "deadline": "2026-06-15",
+          "assignee": "Engineer",
+          "invalidated": false
+        },
+        {
+          "id": "c_meeting_7",
+          "title": "Create training dataset",
+          "source": "meeting",
+          "priority": "normal",
+          "confidence": 45,
+          "reason": "Due in 2 weeks + normal priority + somewhat vague scope + assigned to team = 45",
+          "deadline": "2026-06-10",
+          "assignee": "Data Team",
+          "invalidated": false
+        },
+        {
+          "id": "c_meeting_8",
+          "title": "Conduct user testing",
+          "source": "meeting",
+          "priority": "normal",
+          "confidence": 38,
+          "reason": "Distant deadline + normal priority + clear task assigned to QA Lead = 38",
+          "deadline": "2026-06-25",
+          "assignee": "QA Lead",
+          "invalidated": false
+        }
+      ]
+    },
+    {
+      "id": "g_0006",
+      "context_label": "Compliance & Legal \u2014 SOC 2 and Privacy",
+      "narrative_summary": "Compliance track covering SOC 2 Type II audit scheduling (urgent, Compliance, due May 28 \u2014 high confidence 78), security procedure documentation, vendor contract review, and privacy policy update. SOC 2 scheduling is the most time-sensitive; Legal owns vendor and privacy items.",
+      "task_count": 4,
+      "candidates": [
+        {
+          "id": "c_meeting_9",
+          "title": "Schedule SOC 2 audit",
+          "source": "meeting",
+          "priority": "normal",
+          "confidence": 78,
+          "reason": "Due tomorrow (+30) + normal priority (+15) + clear task (+20) + enables compliance work (+7) + assigned to team (+10) = 82, adjusted to 78 for routine scheduling task",
+          "deadline": "2026-05-28",
+          "assignee": "Compliance",
+          "invalidated": false
+        },
+        {
+          "id": "c_meeting_10",
+          "title": "Document security procedures",
+          "source": "meeting",
+          "priority": "normal",
+          "confidence": 43,
+          "reason": "Deadline 9 days out + normal priority + somewhat vague scope + assigned to Security team = 43",
+          "deadline": "2026-06-05",
+          "assignee": "Security",
+          "invalidated": false
+        },
+        {
+          "id": "c_meeting_11",
+          "title": "Review vendor contracts",
+          "source": "meeting",
+          "priority": "normal",
+          "confidence": 33,
+          "reason": "Distant deadline (19 days), normal priority, assigned to Legal team not user = 33",
+          "deadline": "2026-06-15",
+          "assignee": "Legal",
+          "invalidated": false
+        },
+        {
+          "id": "c_meeting_12",
+          "title": "Update privacy policy",
+          "source": "meeting",
+          "priority": "normal",
+          "confidence": 38,
+          "reason": "Deadline 16+ days away, normal priority, clear but compliance-related task assigned to Legal team = 38",
+          "deadline": "2026-06-12",
+          "assignee": "Legal",
+          "invalidated": false
+        }
+      ]
+    },
+    {
+      "id": "g_0007",
+      "context_label": "Q2 Business Operations \u2014 Results, Budget & Marketing",
+      "narrative_summary": "Late-May business operations cluster: John to publish Q1 results to stakeholders (May 27), Finance to process Q2 budget transfers (May 29), and Marketing to deliver a competitive analysis (May 30). All due within the same week and tied to Q2 kickoff.",
+      "task_count": 3,
+      "candidates": [
+        {
+          "id": "c_meeting_0",
+          "title": "Publish Q1 results to stakeholders",
+          "source": "meeting",
+          "priority": "normal",
+          "confidence": 73,
+          "reason": "Due today (+30) + normal priority (+15) + clear task (+18) + enables stakeholder decisions (+5) + assigned to John (+5) = 73",
+          "deadline": "2026-05-27",
+          "assignee": "John",
+          "invalidated": false
+        },
+        {
+          "id": "c_meeting_1",
+          "title": "Prepare competitive analysis report",
+          "source": "meeting",
+          "priority": "normal",
+          "confidence": 53,
+          "reason": "Due in 3 days + normal priority + clear task but assigned to other team = 53",
+          "deadline": "2026-05-30",
+          "assignee": "Marketing",
+          "invalidated": false
+        },
+        {
+          "id": "c_meeting_13",
+          "title": "Process Q2 budget transfers",
+          "source": "meeting",
+          "priority": "normal",
+          "confidence": 68,
+          "reason": "Due in 2 days (+30) + normal priority (+15) + clear task (+15) + independent (+3) + assigned to Finance team (+5) = 68",
+          "deadline": "2026-05-29",
+          "assignee": "Finance",
+          "invalidated": false
+        }
+      ]
+    },
+    {
+      "id": "g_0008",
+      "context_label": "Q2 Hiring Plan",
+      "narrative_summary": "HR-led hiring pipeline for 4 Q2 roles (engineers, data scientist, designer): post job descriptions (May 26) \u2192 begin interviews (Jun 2) \u2192 complete hires (Jul 1). Sequential, with HR, Hiring Managers, and unassigned final ownership for completion.",
+      "task_count": 3,
+      "candidates": [
+        {
+          "id": "c_meeting_14",
+          "title": "Post job descriptions",
+          "source": "meeting",
+          "priority": "normal",
+          "confidence": 68,
+          "reason": "Overdue by 1 day (+30) + normal priority (+15) + clear actionable task (+18) + enables hiring (+7) + assigned to HR but not user (+5) = 75... adjusted to 68 for not-user assignment",
+          "deadline": "2026-05-26",
+          "assignee": "HR",
+          "invalidated": false
+        },
+        {
+          "id": "c_meeting_15",
+          "title": "Begin interviews for open roles",
+          "source": "meeting",
+          "priority": "normal",
+          "confidence": 53,
+          "reason": "Due in ~1 week + normal priority + clear task + assigned to hiring managers = 53",
+          "deadline": "2026-06-02",
+          "assignee": "Hiring Managers",
+          "invalidated": false
+        },
+        {
+          "id": "c_meeting_16",
+          "title": "Complete Q2 hiring",
+          "source": "meeting",
+          "priority": "normal",
+          "confidence": 33,
+          "reason": "Distant deadline (35 days), normal priority, unassigned, vague execution path = 33",
+          "deadline": "2026-07-01",
+          "assignee": null,
+          "invalidated": false
+        }
+      ]
+    },
+    {
+      "id": "g_0009",
+      "context_label": "Customer-Requested Product Features (excl. SSO)",
+      "narrative_summary": "Product roadmap items driven by customer requests: API rate limiting (Backend, Jun 20) and advanced analytics dashboard (Analytics, Jun 30). Both are normal priority but high-visibility customer asks for Q2.",
+      "task_count": 2,
+      "candidates": [
+        {
+          "id": "c_meeting_17",
+          "title": "Implement API rate limiting",
+          "source": "meeting",
+          "priority": "normal",
+          "confidence": 40,
+          "reason": "Deadline 24 days out + normal priority + clear customer-driven task assigned to Backend = 40",
+          "deadline": "2026-06-20",
+          "assignee": "Backend",
+          "invalidated": false
+        },
+        {
+          "id": "c_meeting_19",
+          "title": "Develop analytics dashboard",
+          "source": "meeting",
+          "priority": "normal",
+          "confidence": 38,
+          "reason": "Distant deadline (34 days) + normal priority + vague scope = 38",
+          "deadline": "2026-06-30",
+          "assignee": "Analytics",
+          "invalidated": false
+        }
+      ]
+    },
+    {
+      "id": "g_0010",
+      "context_label": "QBR Meeting Follow-ups",
+      "narrative_summary": "Post-QBR administrative follow-ups: distribute meeting summary, schedule follow-up meetings for each of the three Q2 initiatives, and have team leads draft detailed initiative project plans. All are coordination tasks unblocking the Q2 initiative tracks.",
+      "task_count": 3,
+      "candidates": [
+        {
+          "id": "c_meeting_20",
+          "title": "Send meeting summary to attendees",
+          "source": "meeting",
+          "priority": "normal",
+          "confidence": 38,
+          "reason": "Clear actionable task but no deadline, normal priority, and unassigned = 38",
+          "deadline": null,
+          "assignee": null,
+          "invalidated": false
+        },
+        {
+          "id": "c_meeting_21",
+          "title": "Schedule follow-up meetings for each initiative",
+          "source": "meeting",
+          "priority": "normal",
+          "confidence": 36,
+          "reason": "Normal priority, no deadline, unassigned, but clear actionable task that enables other work = 36",
+          "deadline": null,
+          "assignee": null,
+          "invalidated": false
+        },
+        {
+          "id": "c_meeting_22",
+          "title": "Create detailed project plans",
+          "source": "meeting",
+          "priority": "normal",
+          "confidence": 43,
+          "reason": "Normal priority, no deadline, clear task assigned to team leads, enables downstream work = 43",
+          "deadline": null,
+          "assignee": "Team Leads",
+          "invalidated": false
+        }
+      ]
+    },
+    {
+      "id": "g_0011",
+      "context_label": "Documentation & Misc Engineering",
+      "narrative_summary": "Standalone engineering hygiene items: v2 API documentation, Q2 release notes preparation, dashboard load-time optimization (3s \u2192 <1s), WebSocket-based real-time notifications, and email regex update for internationalized domain names. Lower confidence and unassigned \u2014 candidates for backlog grooming.",
+      "task_count": 0,
+      "candidates": []
+    }
+  ],
+  "statistics": {
+    "total_groups": 11,
+    "avg_tasks_per_group": 3.727272727272727,
+    "invalidated_tasks": 0,
+    "group_distribution": {
+      "8": 1,
+      "1": 1,
+      "0": 2,
+      "3": 4,
+      "4": 2,
+      "2": 1
+    }
+  }
+}
