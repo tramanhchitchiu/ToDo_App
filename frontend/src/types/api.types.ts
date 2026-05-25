@@ -12,6 +12,7 @@ export interface TodoItem {
   confidence?: number;
   reason?: string;
   deadline?: string;
+  done_date?: string;
   assignee?: string;
   group_label?: string;
 }

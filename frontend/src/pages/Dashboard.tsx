@@ -57,6 +57,7 @@ const MOCK_ITEMS: TodoItem[] = [
     priority: 'normal',
     status: 'done',
     deadline: '2026-05-26',
+    done_date: '2026-05-25',
     confidence: 79,
     reason: 'Meeting action item: review before planning session',
   },
@@ -77,6 +78,7 @@ const MOCK_ITEMS: TodoItem[] = [
     priority: 'low',
     status: 'done',
     deadline: '2026-05-24',
+    done_date: '2026-05-23',
     confidence: 68,
     reason: 'Linked to completed JIRA ticket ALPHA-38',
   },
@@ -120,6 +122,22 @@ function formatDeadline(deadline: string): { text: string; urgent: boolean } {
   };
 }
 
+// ─── filter types ─────────────────────────────────────────────────────────────
+
+type DueDateFilter = 'all' | 'overdue' | 'today' | 'tomorrow' | 'this_week' | 'custom';
+type DoneDateFilter = 'all' | 'today' | 'yesterday' | 'this_week' | 'custom';
+
+function addDays(base: string, n: number): string {
+  const d = new Date(base + 'T00:00:00');
+  d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+const TOMORROW   = addDays(TODAY, 1);
+const WEEK_END   = addDays(TODAY, 7);
+const YESTERDAY  = addDays(TODAY, -1);
+const WEEK_START = addDays(TODAY, -7);
+
 // ─── component ────────────────────────────────────────────────────────────────
 
 const PAGE_SIZE = 10;
@@ -133,6 +151,12 @@ export function Dashboard({ onTaskClick }: DashboardProps) {
   const [sourceFilter, setSourceFilter] = useState<TaskSource | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<TaskStatus | 'all'>('all');
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | 'all'>('all');
+  const [dueDateFilter, setDueDateFilter] = useState<DueDateFilter>('all');
+  const [dueDateFrom, setDueDateFrom] = useState('');
+  const [dueDateTo, setDueDateTo] = useState('');
+  const [doneDateFilter, setDoneDateFilter] = useState<DoneDateFilter>('all');
+  const [doneDateFrom, setDoneDateFrom] = useState('');
+  const [doneDateTo, setDoneDateTo] = useState('');
   const [page, setPage] = useState(1);
 
   const filtered = useMemo(() => {
@@ -141,9 +165,42 @@ export function Dashboard({ onTaskClick }: DashboardProps) {
       if (statusFilter !== 'all' && t.status !== statusFilter) return false;
       if (priorityFilter !== 'all' && t.priority !== priorityFilter) return false;
       if (search && !t.title.toLowerCase().includes(search.toLowerCase())) return false;
+
+      if (dueDateFilter !== 'all') {
+        const dl = t.deadline;
+        if (!dl) return false;
+        if (dueDateFilter === 'overdue') {
+          if (t.status === 'done' || dl >= TODAY) return false;
+        } else if (dueDateFilter === 'today') {
+          if (dl !== TODAY) return false;
+        } else if (dueDateFilter === 'tomorrow') {
+          if (dl !== TOMORROW) return false;
+        } else if (dueDateFilter === 'this_week') {
+          if (dl < TODAY || dl > WEEK_END) return false;
+        } else if (dueDateFilter === 'custom') {
+          if (dueDateFrom && dl < dueDateFrom) return false;
+          if (dueDateTo && dl > dueDateTo) return false;
+        }
+      }
+
+      if (doneDateFilter !== 'all') {
+        const dd = t.done_date;
+        if (!dd) return false;
+        if (doneDateFilter === 'today') {
+          if (dd !== TODAY) return false;
+        } else if (doneDateFilter === 'yesterday') {
+          if (dd !== YESTERDAY) return false;
+        } else if (doneDateFilter === 'this_week') {
+          if (dd < WEEK_START || dd > TODAY) return false;
+        } else if (doneDateFilter === 'custom') {
+          if (doneDateFrom && dd < doneDateFrom) return false;
+          if (doneDateTo && dd > doneDateTo) return false;
+        }
+      }
+
       return true;
     });
-  }, [search, sourceFilter, statusFilter, priorityFilter]);
+  }, [search, sourceFilter, statusFilter, priorityFilter, dueDateFilter, dueDateFrom, dueDateTo, doneDateFilter, doneDateFrom, doneDateTo]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -214,6 +271,65 @@ export function Dashboard({ onTaskClick }: DashboardProps) {
           <option value="normal">Med</option>
           <option value="low">Low</option>
         </select>
+
+        <select
+          className={styles.filterSelect}
+          value={dueDateFilter}
+          onChange={(e) => { setDueDateFilter(e.target.value as DueDateFilter); setPage(1); }}
+        >
+          <option value="all">Due Date</option>
+          <option value="overdue">Overdue</option>
+          <option value="today">Today</option>
+          <option value="tomorrow">Tomorrow</option>
+          <option value="this_week">This Week</option>
+          <option value="custom">Custom range…</option>
+        </select>
+        {dueDateFilter === 'custom' && (
+          <div className={styles.dateRangeGroup}>
+            <input
+              type="date"
+              className={styles.dateInput}
+              value={dueDateFrom}
+              onChange={(e) => { setDueDateFrom(e.target.value); setPage(1); }}
+            />
+            <span className={styles.dateRangeSep}>–</span>
+            <input
+              type="date"
+              className={styles.dateInput}
+              value={dueDateTo}
+              onChange={(e) => { setDueDateTo(e.target.value); setPage(1); }}
+            />
+          </div>
+        )}
+
+        <select
+          className={styles.filterSelect}
+          value={doneDateFilter}
+          onChange={(e) => { setDoneDateFilter(e.target.value as DoneDateFilter); setPage(1); }}
+        >
+          <option value="all">Done Date</option>
+          <option value="today">Done Today</option>
+          <option value="yesterday">Done Yesterday</option>
+          <option value="this_week">Done This Week</option>
+          <option value="custom">Custom range…</option>
+        </select>
+        {doneDateFilter === 'custom' && (
+          <div className={styles.dateRangeGroup}>
+            <input
+              type="date"
+              className={styles.dateInput}
+              value={doneDateFrom}
+              onChange={(e) => { setDoneDateFrom(e.target.value); setPage(1); }}
+            />
+            <span className={styles.dateRangeSep}>–</span>
+            <input
+              type="date"
+              className={styles.dateInput}
+              value={doneDateTo}
+              onChange={(e) => { setDoneDateTo(e.target.value); setPage(1); }}
+            />
+          </div>
+        )}
 
         <span className={styles.sortLabel}>Sort: Deadline ↑</span>
       </div>
