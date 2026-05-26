@@ -184,8 +184,8 @@
 }
 
 .tableRow td {
-  padding: 0 16px;
-  height: 48px;
+  padding: 8px 16px;
+  min-height: 48px;
   font-size: 14px;
   color: var(--color-text-primary);
   vertical-align: middle;
@@ -197,12 +197,29 @@
   width: 36px;
 }
 
+.taskTitleCell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
 .taskTitle {
-  max-width: 300px;
+  max-width: 420px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   font-weight: 500;
+}
+
+.taskExcerpt {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 420px;
+  opacity: 0.75;
 }
 
 .badge {

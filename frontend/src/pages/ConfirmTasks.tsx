@@ -11,72 +11,162 @@ const MOCK_GROUPS: TaskGroup[] = [
     id: 'g1',
     context_label: 'Project Alpha — Auth Module',
     narrative_summary:
-      'Sprint 3 introduced OAuth2. Two tasks share this context. One may be invalidated by a recent requirement change.',
+      'Sprint 3 introduced OAuth2 authentication. Three tasks share this context: a PR review blocking the release cut, a regression bug blocking downstream PRs, and a documentation update. A potential requirement conflict was detected — the OAuth spec was revised on May 19.',
     candidates: [
       {
         id: 'c1',
-        title: 'Review PR #42 for authentication module',
+        title: 'Review PR #42 — OAuth2 refresh-token flow',
         source: 'jira',
         priority: 'urgent',
-        confidence: 92,
-        reason: "Imperative assignment detected: 'please review before EOD'",
-        deadline: '2026-05-25',
+        confidence: 94,
+        reason: "Imperative assignment: 'please review before EOD'",
+        deadline: '2026-05-26',
         group_id: 'g1',
         invalidation_flag: true,
+        source_excerpt: '[ALPHA-42 • TrungNT → Linh]\n"Please review this PR before EOD today. Two reviewers approved but we still need your sign-off before the auth release cut on Friday."',
       },
       {
         id: 'c2',
-        title: 'Update authentication documentation',
+        title: 'Fix bug #103 — null pointer in session middleware',
+        source: 'jira',
+        priority: 'urgent',
+        confidence: 91,
+        reason: 'High-priority regression blocking 3 downstream PRs',
+        deadline: '2026-05-26',
+        group_id: 'g1',
+        source_excerpt: '[ALPHA-103 • Auto-assigned • Severity: Critical]\n"NullPointerException in SessionMiddleware.handle() when token is expired. Introduced in v2.4.1. Currently blocking PRs #44, #45, #46 from merging."',
+      },
+      {
+        id: 'c9',
+        title: 'Update authentication documentation in Confluence',
         source: 'meeting',
         priority: 'low',
         confidence: 74,
-        reason: "'Linh to update docs' — action item in meeting transcript",
-        deadline: '2026-05-27',
+        reason: "Action item from sprint retro: 'Linh to update auth docs'",
+        deadline: '2026-05-29',
         group_id: 'g1',
+        source_excerpt: '[Sprint 3 Retro • 2026-05-22 • Meeting minutes]\nAction item: "Linh to update Confluence auth documentation to reflect the new OAuth2 flow and token refresh logic before end of sprint."',
       },
     ],
   },
   {
     id: 'g2',
-    context_label: 'Client XYZ — Delivery',
-    narrative_summary: 'Client requested a status update via email. One task detected.',
+    context_label: 'Client XYZ — May Release',
+    narrative_summary:
+      'Client XYZ has a stakeholder review on May 28. Two time-sensitive items detected: a delivery status reply (client waiting 3 days) and demo slide preparation (1 day buffer required before the call).',
     candidates: [
       {
         id: 'c3',
-        title: 'Reply to client delivery status email',
+        title: 'Reply to client XYZ — delivery status update',
         source: 'email',
-        priority: 'normal',
-        confidence: 85,
-        reason: "'Need by Friday' deadline signal detected",
+        priority: 'urgent',
+        confidence: 88,
+        reason: "'Need update by Friday' detected in email body",
         deadline: '2026-05-26',
         group_id: 'g2',
+        source_excerpt: '[Email • From: contact@xyz-corp.com • 2026-05-23 14:32]\n"Hi Linh, could you send a quick delivery status update? We need it by Friday before our internal stakeholder review. Thanks in advance."',
+      },
+      {
+        id: 'c4',
+        title: 'Prepare demo slides for May release presentation',
+        source: 'email',
+        priority: 'urgent',
+        confidence: 93,
+        reason: "'Demo by EOD Friday' request from stakeholder",
+        deadline: '2026-05-27',
+        group_id: 'g2',
+        source_excerpt: '[Email • From: pm@xyz-corp.com • 2026-05-24 09:15]\n"Please have the demo deck ready by Thursday EOD — we need the 1 day buffer before the May 28 stakeholder call for revisions. Cover Phase 2 milestones."',
       },
     ],
   },
   {
     id: 'g3',
-    context_label: 'Sprint 4 Planning',
-    narrative_summary: 'Two action items captured from the sprint planning session.',
+    context_label: 'Platform Migration — Q3',
+    narrative_summary:
+      'Architecture review approved k8s migration for Q3 2026. Two action items were assigned: scheduling the kickoff with the infra team, and reviewing the Sprint 4 planning document before standup.',
     candidates: [
       {
-        id: 'c4',
-        title: 'Review sprint 4 planning document',
+        id: 'c5',
+        title: 'Schedule platform migration kickoff with infra team',
+        source: 'meeting',
+        priority: 'normal',
+        confidence: 83,
+        reason: 'Explicit action item assigned to PM in architecture review',
+        deadline: '2026-05-28',
+        group_id: 'g3',
+        source_excerpt: '[Architecture Review • 2026-05-21 • Decision recorded]\n"Motion passed: migrate all services to k8s by Q3 2026. PM (Linh) to schedule kickoff meeting with infra team within 1 week of this review."',
+      },
+      {
+        id: 'c6',
+        title: 'Review sprint 4 planning document before standup',
         source: 'teams',
         priority: 'normal',
         confidence: 79,
-        reason: 'Action item from sprint planning meeting',
-        deadline: '2026-05-26',
+        reason: 'Review request with time constraint — standup at 10:00',
+        deadline: '2026-05-27',
         group_id: 'g3',
+        source_excerpt: "[#sprint-planning • Cuong → @team • 09:05]\n\"Hey team, Sprint 4 planning doc is ready in Confluence. Please review before today's 10:00 standup so we can align on capacity and unblock the k8s migration track.\"",
+      },
+    ],
+  },
+  {
+    id: 'g4',
+    context_label: 'Infra & DevOps',
+    narrative_summary:
+      'Two active infrastructure incidents require immediate attention. The CI pipeline on main has been red since 08:15 blocking all deployments. A PagerDuty-level CPU alert on prod-worker-03 remains unacknowledged since 07:45.',
+    candidates: [
+      {
+        id: 'c7',
+        title: 'Resolve CI pipeline failure on main branch',
+        source: 'teams',
+        priority: 'urgent',
+        confidence: 97,
+        reason: "Urgent ping from tech lead: 'main is broken, needs fix ASAP'",
+        deadline: '2026-05-26',
+        group_id: 'g4',
+        source_excerpt: '[#dev-ops • TechLead • 08:22]\n"@channel URGENT — main branch CI is RED since 08:15. Blocking ALL deployments. Likely flaky Playwright test in auth suite. Please investigate NOW, release is today."',
       },
       {
-        id: 'c5',
-        title: 'Prepare demo slides for client XYZ — May release',
-        source: 'email',
+        id: 'c8',
+        title: 'Acknowledge high CPU alert on prod-worker-03',
+        source: 'slack',
         priority: 'urgent',
-        confidence: 91,
-        reason: "'Demo by EOD Friday' request from stakeholder",
-        deadline: '2026-05-25',
-        group_id: 'g3',
+        confidence: 99,
+        reason: 'PagerDuty-level alert forwarded to #incidents — unacknowledged 90 min',
+        deadline: '2026-05-26',
+        group_id: 'g4',
+        source_excerpt: '[#incidents • PagerDuty-Bot • 07:45]\n"ALERT: prod-worker-03 — CPU at 94% for 20+ consecutive minutes (threshold: 85%). Possible memory leak or runaway process. Acknowledge or escalate to on-call engineer immediately."',
+      },
+    ],
+  },
+  {
+    id: 'g5',
+    context_label: 'Compliance & Admin',
+    narrative_summary:
+      'Two administrative tasks with approaching deadlines: an SLA amendment requiring PM sign-off before May 30, and contractor onboarding preparation for Minh who joins June 2. The onboarding task may conflict with the current hiring freeze notice.',
+    candidates: [
+      {
+        id: 'c10',
+        title: 'Review and sign off on SLA amendment',
+        source: 'email',
+        priority: 'normal',
+        confidence: 81,
+        reason: "Approval deadline signal: 'sign off before end of month'",
+        deadline: '2026-05-30',
+        group_id: 'g5',
+        source_excerpt: '[Email • From: legal@company.com • 2026-05-22]\n"Attached: revised SLA for Q3 per client negotiation outcomes. Requires PM approval before May 30. Key change: Section 4.2 response-time SLOs tightened from 4h to 2h."',
+      },
+      {
+        id: 'c11',
+        title: 'Onboard new contractor — send repo access and docs',
+        source: 'email',
+        priority: 'normal',
+        confidence: 77,
+        reason: 'Start date June 2 — prep needed this week',
+        deadline: '2026-06-02',
+        group_id: 'g5',
+        invalidation_flag: true,
+        source_excerpt: '[Email • From: hr@company.com • 2026-05-24]\n"Reminder: Minh Nguyen (contractor, frontend) starts Monday June 2. Please ensure repo access (GitHub + Jira), onboarding doc link, and Slack invite are sent before their first day."',
       },
     ],
   },
@@ -189,6 +279,14 @@ export function ConfirmTasks({ groups = MOCK_GROUPS, onSubmit }: ConfirmTasksPro
             <div className={styles.groupHeader}>
               <p className={styles.groupLabel}>📁 {group.context_label}</p>
               <p className={styles.groupNarrative}>{group.narrative_summary}</p>
+              {group.candidates.some((c) => c.invalidation_flag) && (
+                <div className={styles.groupWarning}>
+                  <span className={styles.groupWarningIcon}>⚠️</span>
+                  <span className={styles.groupWarningText}>
+                    One or more tasks in this group may be outdated — a related requirement or context may have changed. Review carefully before accepting.
+                  </span>
+                </div>
+              )}
             </div>
             {group.candidates.map((candidate) => (
               <TaskCard

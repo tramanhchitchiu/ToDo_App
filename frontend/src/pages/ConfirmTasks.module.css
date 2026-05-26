@@ -65,8 +65,31 @@
   font-size: 13px;
   color: var(--color-text-secondary);
   font-style: italic;
-  margin: 0;
+  margin: 0 0 0 0;
   line-height: 1.4;
+}
+
+.groupWarning {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 9px 12px;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  border-radius: 8px;
+}
+
+.groupWarningIcon {
+  font-size: 13px;
+  line-height: 1.5;
+  flex-shrink: 0;
+}
+
+.groupWarningText {
+  font-size: 12px;
+  color: #F59E0B;
+  line-height: 1.5;
 }
 
 /* Submit section */

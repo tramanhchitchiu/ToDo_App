@@ -21,7 +21,7 @@ function App() {
   });
 
   // Agent pipeline state
-  const [agentGroups, setAgentGroups]         = useState<TaskGroup[]>([]);
+  const [agentGroups, setAgentGroups]         = useState<TaskGroup[] | undefined>(undefined);
   const [agentLoading, setAgentLoading]       = useState(false);
   const [agentError, setAgentError]           = useState<string | null>(null);
   const [pendingCount, setPendingCount]       = useState(0);
@@ -119,7 +119,7 @@ function App() {
       {page === 'confirm'        && (
         <ConfirmTasks
           groups={agentGroups}
-          onSubmit={() => { setPendingCount(0); setAgentGroups([]); setPage('dashboard'); }}
+          onSubmit={() => { setPendingCount(0); setAgentGroups(undefined); setPage('dashboard'); }}
         />
       )}
       {page === 'briefing'       && <Briefing />}

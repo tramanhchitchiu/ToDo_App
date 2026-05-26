@@ -369,3 +369,40 @@
 .dismissBtn:hover {
   color: var(--color-text-primary);
 }
+
+/* ─── AI Confidence card ─────────────────────────── */
+
+.confidenceRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 6px;
+}
+
+.confidenceBar {
+  flex: 1;
+  height: 6px;
+  background: var(--color-border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.confidenceFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.confidenceScore {
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.confidenceReason {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+  margin: 0;
+  font-style: italic;
+}

@@ -404,7 +404,15 @@ export function Dashboard({ onTaskClick }: DashboardProps) {
                 return (
                   <tr key={task.id} className={styles.tableRow} onClick={() => onTaskClick?.(task)}>
                     <td className={styles.colNum}>{(page - 1) * PAGE_SIZE + i + 1}</td>
-                    <td className={styles.taskTitle} title={task.title}>{task.title}</td>
+                    <td className={styles.taskTitleCell}>
+                      <span className={styles.taskTitle}>{task.title}</span>
+                      {task.source_excerpt && (
+                        <span className={styles.taskExcerpt}>
+                          {task.source_excerpt.replace(/\n/g, ' ').slice(0, 110)}
+                          {task.source_excerpt.length > 110 ? '…' : ''}
+                        </span>
+                      )}
+                    </td>
                     <td>
                       <span
                         className={styles.badge}

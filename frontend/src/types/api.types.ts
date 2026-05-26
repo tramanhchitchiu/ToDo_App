@@ -15,6 +15,7 @@ export interface TodoItem {
   done_date?: string;
   assignee?: string;
   group_label?: string;
+  source_excerpt?: string;
 }
 
 export interface TaskCandidate {
@@ -28,6 +29,7 @@ export interface TaskCandidate {
   deadline?: string;
   group_id?: string;
   invalidation_flag?: boolean;
+  source_excerpt?: string;
 }
 
 export interface TaskGroup {

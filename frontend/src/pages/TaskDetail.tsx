@@ -2,71 +2,157 @@ import React, { useState, useEffect } from 'react';
 import styles from './TaskDetail.module.css';
 import type { TodoItem, TaskSource, TaskPriority, TaskStatus } from '../types/api.types';
 
-// ─── supplementary mock detail data (Phase 1) ────────────────────────────────
+// ─── supplementary data not returned by the API ───────────────────────────────
 
 interface Supplement {
-  description: string;
-  sourceExcerpt: string;
-  assignee: string;
-  createdAt: string;
-  updatedAt: string;
-  groupLabel?: string;
   groupNarrative?: string;
   relatedTasks?: { title: string; color: string }[];
   hasInvalidation?: boolean;
+  assignee?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 const SUPPLEMENTS: Record<string, Supplement> = {
-  '1': {
-    description:
-      'The PR needs a second reviewer before merging into main. Please review the OAuth2 implementation and approve or leave inline comments. Pay attention to the token refresh logic.',
-    sourceExcerpt:
-      '[Jira — ALPHA-42] Assigned to Linh by TrungNT on 2026-05-20:\n"Please review this PR before EOD today. The auth module needs sign-off."',
-    assignee: 'Nguyen T. Linh',
-    createdAt: '2026-05-20',
-    updatedAt: '2 hours ago',
-    groupLabel: 'Project Alpha — Auth Module',
+  'task-jira-001': {
     groupNarrative:
-      'Sprint 3 introduced OAuth2 authentication. This PR is the final review gate before the feature merges to main. Related tasks include bug #103 (blocking this) and documentation update (follow-up action).',
+      'Sprint 3 introduced OAuth2. PR #42 is the final review gate before merging to main. A requirement conflict was detected — the OAuth spec was revised on May 19 and the implementation must be re-verified against it. Bug #103 is a blocking regression that must be resolved before this PR can ship.',
     relatedTasks: [
-      { title: 'Fix bug #103', color: '#EF4444' },
-      { title: 'Update auth docs', color: '#10B981' },
+      { title: 'Fix bug #103 — null pointer', color: '#EF4444' },
+      { title: 'Update authentication docs', color: '#10B981' },
+      { title: 'Migrate legacy auth tokens', color: '#F59E0B' },
     ],
     hasInvalidation: true,
+    assignee: 'TrungNT → Nguyen T. Linh',
+    createdAt: '2026-05-20',
+    updatedAt: '2 hours ago',
   },
-  '2': {
-    description:
-      'The client has asked for a project delivery status update. Reply summarising completed milestones and the remaining timeline.',
-    sourceExcerpt:
-      '[Email — From: client@xyz.com, 2026-05-23]\n"Hi Linh, could you send a quick status update on the delivery? Need it by Friday. Thanks."',
+  'task-jira-002': {
+    groupNarrative:
+      'Sprint 3 introduced OAuth2. Bug #103 is a critical regression in v2.4.1 — NullPointerException in SessionMiddleware when the token is expired. Currently blocking PRs #44, #45, and #46 from merging. Must be resolved before the auth release cut on Friday.',
+    relatedTasks: [
+      { title: 'Review PR #42 — OAuth2 flow', color: '#EF4444' },
+    ],
+    assignee: 'Auto-assigned → Nguyen T. Linh',
+    createdAt: '2026-05-25',
+    updatedAt: '4 hours ago',
+  },
+  'task-jira-003': {
+    groupNarrative:
+      'Ticket ALPHA-38 was completed but the Confluence API versioning docs still reference v1 endpoints. This follow-up doc update is needed before external partners notice the discrepancy. Low urgency but linked to the active auth sprint.',
+    relatedTasks: [
+      { title: 'Review PR #42 — OAuth2 flow', color: '#EF4444' },
+      { title: 'Migrate legacy auth tokens', color: '#F59E0B' },
+    ],
+    assignee: 'Nguyen T. Linh',
+    createdAt: '2026-05-26',
+    updatedAt: '6 hours ago',
+  },
+  'task-jira-004': {
+    groupNarrative:
+      'Sprint 3 auth work left ~12,000 tokens in the legacy format. They must be migrated to JWT v2 before the deprecation deadline on May 31. A backfill script needs to be written and run against production with a dry-run first.',
+    relatedTasks: [
+      { title: 'Review PR #42 — OAuth2 flow', color: '#EF4444' },
+      { title: 'Update API versioning docs', color: '#10B981' },
+    ],
+    assignee: 'Nguyen T. Linh',
+    createdAt: '2026-05-26',
+    updatedAt: '6 hours ago',
+  },
+  'task-email-001': {
     assignee: 'Nguyen T. Linh',
     createdAt: '2026-05-23',
-    updatedAt: '1 day ago',
-    groupLabel: 'Client XYZ — Delivery',
-    groupNarrative: 'Client requested a delivery status update via email. Reply before end of Friday.',
+    updatedAt: '3 days ago',
   },
-  '3': {
-    description:
-      'Update the Confluence authentication documentation to reflect the new OAuth2 flow introduced in Sprint 3.',
-    sourceExcerpt:
-      '[Meeting Minutes — Sprint 3 Retro, 2026-05-22]\nAction item: "Linh to update authentication docs before end of sprint."',
+  'task-email-002': {
+    groupNarrative:
+      'Client XYZ has a stakeholder review call on May 28. The demo deck must be ready by Thursday EOD (May 27) to allow the 1-day revision buffer. Cover Phase 2 milestones, delivery timeline, and the upcoming Q3 feature roadmap.',
+    relatedTasks: [
+      { title: 'Reply to client XYZ — status', color: '#F59E0B' },
+    ],
+    assignee: 'Nguyen T. Linh',
+    createdAt: '2026-05-24',
+    updatedAt: '2 days ago',
+  },
+  'task-email-003': {
+    assignee: 'Nguyen T. Linh (PM approval)',
+    createdAt: '2026-05-22',
+    updatedAt: '4 days ago',
+  },
+  'task-email-004': {
+    hasInvalidation: true,
+    assignee: 'HR → Nguyen T. Linh',
+    createdAt: '2026-05-24',
+    updatedAt: '2 days ago',
+  },
+  'task-meeting-001': {
+    groupNarrative:
+      'Sprint 3 retro identified that the Confluence auth docs were not updated to reflect the new OAuth2 flow and token refresh logic. This action item was assigned to Linh and must be done before the next sprint starts.',
+    relatedTasks: [
+      { title: 'Review PR #42 — OAuth2 flow', color: '#EF4444' },
+      { title: 'Update API versioning docs', color: '#3B82F6' },
+    ],
     assignee: 'Nguyen T. Linh',
     createdAt: '2026-05-22',
-    updatedAt: '3 days ago',
-    groupLabel: 'Project Alpha — Auth Module',
+    updatedAt: '4 days ago',
+  },
+  'task-meeting-002': {
     groupNarrative:
-      'Sprint 3 introduced OAuth2. Documentation needs to be updated to reflect the new flow.',
+      'Architecture review on May 21 approved migrating all services to k8s by Q3 2026. PM must schedule the kickoff within 1 week of the approval. Sprint 4 planning should account for migration capacity to avoid blocking the infra team.',
     relatedTasks: [
-      { title: 'Review PR #42', color: '#EF4444' },
+      { title: 'Review Sprint 4 planning doc', color: '#6366F1' },
     ],
+    assignee: 'Nguyen T. Linh (PM)',
+    createdAt: '2026-05-21',
+    updatedAt: '5 days ago',
+  },
+  'task-meeting-003': {
+    groupNarrative:
+      'Q2 missed three OKRs: Auth hardening, API latency SLOs, and onboarding time reduction. The owner committed in the Q2 review meeting to deliver a post-mortem doc covering root causes and corrective actions before next week\'s planning session.',
+    assignee: 'Nguyen T. Linh',
+    createdAt: '2026-05-19',
+    updatedAt: '1 week ago',
+  },
+  'task-teams-001': {
+    groupNarrative:
+      'Two concurrent infra incidents are active. The CI pipeline on main has been red since 08:15 — blocking all deployments and the release cut scheduled for today. Root cause suspected: flaky Playwright test in the auth suite introduced by a recent dependency update.',
+    relatedTasks: [
+      { title: 'Acknowledge CPU alert — prod-worker-03', color: '#EF4444' },
+    ],
+    assignee: 'On-call engineer (escalated)',
+    createdAt: '2026-05-26',
+    updatedAt: '1 hour ago',
+  },
+  'task-teams-002': {
+    groupNarrative:
+      'Architecture review approved k8s migration for Q3. Sprint 4 planning doc must be reviewed before the 10:00 standup to ensure migration capacity is properly allocated and the infra track does not slip.',
+    relatedTasks: [
+      { title: 'Schedule migration kickoff', color: '#14B8A6' },
+    ],
+    assignee: 'Nguyen T. Linh',
+    createdAt: '2026-05-26',
+    updatedAt: '2 hours ago',
+  },
+  'task-teams-003': {
+    assignee: 'Nguyen T. Linh (PM sign-off)',
+    createdAt: '2026-05-26',
+    updatedAt: '3 hours ago',
+  },
+  'task-slack-001': {
+    groupNarrative:
+      'Two concurrent infra incidents are active. prod-worker-03 has had 94% CPU utilisation for over 20 minutes — possible memory leak or runaway process. The PagerDuty alert was forwarded to #incidents at 07:45 and remains unacknowledged. Escalate to on-call if no response within 15 minutes.',
+    relatedTasks: [
+      { title: 'Resolve CI pipeline failure', color: '#EF4444' },
+    ],
+    assignee: 'On-call engineer (escalated)',
+    createdAt: '2026-05-26',
+    updatedAt: '3 hours ago',
   },
 };
 
 const DEFAULT_SUPPLEMENT: Supplement = {
-  description: '',
-  sourceExcerpt: 'No source excerpt available.',
   assignee: 'Nguyen T. Linh',
-  createdAt: '2026-05-20',
+  createdAt: '2026-05-26',
   updatedAt: 'recently',
 };
 
@@ -112,28 +198,30 @@ interface TaskDetailProps {
 export function TaskDetail({ task, onBack }: TaskDetailProps) {
   const supp = SUPPLEMENTS[task.id] ?? DEFAULT_SUPPLEMENT;
 
-  // Editable fields
+  // Prefer API data; fall back to supplement
+  const sourceExcerpt = task.source_excerpt || '';
+  const groupLabel    = task.group_label    || '';
+  const initialDesc   = task.description   || '';
+
   const [title, setTitle]           = useState(task.title);
-  const [description, setDesc]      = useState(supp.description);
+  const [description, setDesc]      = useState(initialDesc);
   const [status, setStatus]         = useState<TaskStatus>(task.status);
   const [deadline, setDeadline]     = useState(task.deadline ?? '');
 
-  // UI state
   const [savedMsg, setSavedMsg]           = useState(false);
   const [showInvalidation, setShowInvalid] = useState(supp.hasInvalidation ?? false);
   const [contextCollapsed, setCollapsed]   = useState(false);
 
   const isDirty =
     title !== task.title ||
-    description !== supp.description ||
+    description !== initialDesc ||
     status !== task.status ||
     deadline !== (task.deadline ?? '');
 
-  // Reset local state when task changes (navigating between tasks)
   useEffect(() => {
     const s = SUPPLEMENTS[task.id] ?? DEFAULT_SUPPLEMENT;
     setTitle(task.title);
-    setDesc(s.description);
+    setDesc(task.description || '');
     setStatus(task.status);
     setDeadline(task.deadline ?? '');
     setSavedMsg(false);
@@ -147,9 +235,8 @@ export function TaskDetail({ task, onBack }: TaskDetailProps) {
   }
 
   function handleCancel() {
-    const s = SUPPLEMENTS[task.id] ?? DEFAULT_SUPPLEMENT;
     setTitle(task.title);
-    setDesc(s.description);
+    setDesc(task.description || '');
     setStatus(task.status);
     setDeadline(task.deadline ?? '');
   }
@@ -202,9 +289,9 @@ export function TaskDetail({ task, onBack }: TaskDetailProps) {
 
         {/* Secondary metadata */}
         <div className={styles.metaSecondary}>
-          <span>Assigned to: {supp.assignee}</span>
-          <span>Created: {supp.createdAt}</span>
-          <span>Last updated: {supp.updatedAt}</span>
+          <span>Assigned to: {supp.assignee ?? 'Nguyen T. Linh'}</span>
+          <span>Created: {supp.createdAt ?? '2026-05-26'}</span>
+          <span>Last updated: {supp.updatedAt ?? 'recently'}</span>
         </div>
 
         {/* Description */}
@@ -219,10 +306,12 @@ export function TaskDetail({ task, onBack }: TaskDetailProps) {
         </div>
 
         {/* Source Excerpt */}
-        <div className={styles.section}>
-          <span className={styles.sectionLabel}>Source Excerpt</span>
-          <div className={styles.sourceExcerpt}>{supp.sourceExcerpt}</div>
-        </div>
+        {sourceExcerpt && (
+          <div className={styles.section}>
+            <span className={styles.sectionLabel}>Source Excerpt</span>
+            <div className={styles.sourceExcerpt}>{sourceExcerpt}</div>
+          </div>
+        )}
 
         {/* Save / Cancel */}
         <div className={styles.formActions}>
@@ -239,7 +328,7 @@ export function TaskDetail({ task, onBack }: TaskDetailProps) {
       {/* ── Right column ── */}
       <div className={styles.rightCol}>
         {/* Thread Context */}
-        {supp.groupLabel && (
+        {groupLabel && (
           <div className={styles.card}>
             <div className={styles.cardHeader}>
               <p className={styles.cardTitle}>Thread Context</p>
@@ -253,7 +342,7 @@ export function TaskDetail({ task, onBack }: TaskDetailProps) {
             </div>
             {!contextCollapsed && (
               <>
-                <p className={styles.groupLabel}>📁 {supp.groupLabel}</p>
+                <p className={styles.groupLabel}>📁 {groupLabel}</p>
                 {supp.groupNarrative && (
                   <p className={styles.groupNarrative}>{supp.groupNarrative}</p>
                 )}
@@ -262,7 +351,7 @@ export function TaskDetail({ task, onBack }: TaskDetailProps) {
                     {supp.relatedTasks.map((rt) => (
                       <span key={rt.title} className={styles.relatedChip}>
                         {rt.title}
-                        <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: rt.color, display: 'inline-block' }} />
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: rt.color, display: 'inline-block', marginLeft: 4 }} />
                       </span>
                     ))}
                   </div>
@@ -278,8 +367,8 @@ export function TaskDetail({ task, onBack }: TaskDetailProps) {
             <div className={styles.invalidHeader}>
               <span className={styles.invalidIcon}>⚠️</span>
               <p className={styles.invalidText}>
-                This task may be outdated. A related requirement changed on 2026-05-19.
-                Please confirm it is still relevant.
+                This task may be outdated. A related requirement or context changed recently.
+                Please confirm it is still relevant before acting on it.
               </p>
             </div>
             <div className={styles.invalidActions}>
@@ -290,6 +379,31 @@ export function TaskDetail({ task, onBack }: TaskDetailProps) {
                 Dismiss
               </button>
             </div>
+          </div>
+        )}
+
+        {/* AI confidence */}
+        {task.confidence !== undefined && (
+          <div className={styles.card}>
+            <p className={styles.cardTitle}>AI Confidence</p>
+            <div className={styles.confidenceRow}>
+              <div className={styles.confidenceBar}>
+                <div
+                  className={styles.confidenceFill}
+                  style={{
+                    width: `${task.confidence}%`,
+                    background: task.confidence >= 80 ? '#10B981' : task.confidence >= 50 ? '#F59E0B' : '#EF4444',
+                  }}
+                />
+              </div>
+              <span
+                className={styles.confidenceScore}
+                style={{ color: task.confidence >= 80 ? '#10B981' : task.confidence >= 50 ? '#F59E0B' : '#EF4444' }}
+              >
+                {task.confidence}/100
+              </span>
+            </div>
+            {task.reason && <p className={styles.confidenceReason}>{task.reason}</p>}
           </div>
         )}
       </div>

@@ -76,6 +76,22 @@
   line-height: 1.4;
 }
 
+/* Source excerpt */
+.sourceExcerpt {
+  margin: 0 0 8px 25px;
+  padding: 9px 12px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-left: 3px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  line-height: 1.55;
+  color: #9CA3AF;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 /* Chips row */
 .chipsRow {
   display: flex;

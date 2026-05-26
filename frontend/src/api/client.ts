@@ -1,5 +1,22 @@
-import axios, { AxiosInstance } from 'axios';
-import type { TodoItem, TaskCandidate, TaskGroup, DailyBriefingData } from '../types/api.types';
+import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
+import type { TodoItem, TaskCandidate, TaskGroup, DailyBriefingData, TaskStatus } from '../types/api.types';
+
+const STATUS_MAP: Record<string, TaskStatus> = {
+  pending:     'todo',
+  accepted:    'in_progress',
+  rejected:    'done',
+  todo:        'todo',
+  in_progress: 'in_progress',
+  done:        'done',
+};
+
+function normalizeTask(raw: any): TodoItem {
+  return {
+    ...raw,
+    deadline: raw.deadline ? raw.deadline.slice(0, 10) : undefined,
+    status: STATUS_MAP[raw.status] ?? 'todo',
+  };
+}
 
 const API_BASE_URL = 'http://localhost:8000';
 
@@ -18,8 +35,8 @@ const axiosInstance: AxiosInstance = axios.create({
 
 // Response interceptor to handle standard envelope
 axiosInstance.interceptors.response.use(
-  (response) => response,
-  (error) => {
+  (response: AxiosResponse) => response,
+  (error: AxiosError) => {
     console.error('API Error:', error.response?.data || error.message);
     return Promise.reject(error);
   }
@@ -60,7 +77,7 @@ export const apiClient = {
     const url = queryString ? `/tasks?${queryString}` : '/tasks';
 
     const response = await axiosInstance.get(url);
-    return response.data.data || [];
+    return (response.data.data || []).map(normalizeTask);
   },
 
   /**

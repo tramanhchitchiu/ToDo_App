@@ -102,6 +102,11 @@ export function TaskCard({ candidate, decision, onAccept, onRequestReject, onEdi
       {/* Reason */}
       <p className={styles.reason}>{candidate.reason}</p>
 
+      {/* Source excerpt */}
+      {candidate.source_excerpt && (
+        <pre className={styles.sourceExcerpt}>{candidate.source_excerpt}</pre>
+      )}
+
       {/* Chips */}
       <div className={styles.chipsRow}>
         <span className={styles.chip} style={{ background: src.bg, color: src.color }}>{src.label}</span>
