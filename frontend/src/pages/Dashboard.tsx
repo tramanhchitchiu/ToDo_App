@@ -451,7 +451,7 @@ export function Dashboard({ onTaskClick }: DashboardProps) {
                       </span>
                     </td>
                     <td>
-                      <button className={styles.actionBtn} aria-label="Actions">⋯</button>
+                      <button className={styles.actionBtn} aria-label="Actions" onClick={(e) => { e.stopPropagation(); onTaskClick?.(task); }}>⋯</button>
                     </td>
                   </tr>
                 );

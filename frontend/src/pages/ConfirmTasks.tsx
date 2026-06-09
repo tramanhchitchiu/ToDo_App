@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import styles from './ConfirmTasks.module.css';
 import { TaskCard, type Decision } from '../components/TaskCard';
 import { apiClient } from '../api/client';
@@ -179,9 +179,10 @@ const ALL_CANDIDATES: TaskCandidate[] = MOCK_GROUPS.flatMap((g) => g.candidates)
 interface ConfirmTasksProps {
   groups?: TaskGroup[];
   onSubmit?: () => void;
+  onRemainingChange?: (remaining: number) => void;
 }
 
-export function ConfirmTasks({ groups = MOCK_GROUPS, onSubmit }: ConfirmTasksProps) {
+export function ConfirmTasks({ groups = MOCK_GROUPS, onSubmit, onRemainingChange }: ConfirmTasksProps) {
   const [decisions, setDecisions] = useState<Record<string, Decision>>({});
   const [rejectModal, setRejectModal] = useState<{ candidateId: string; reason: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -197,51 +198,39 @@ export function ConfirmTasks({ groups = MOCK_GROUPS, onSubmit }: ConfirmTasksPro
     [decisions, allCandidates],
   );
 
-  async function handleAccept(id: string) {
-    try {
-      await apiClient.acceptTask(id, 'User confirmed', '');
-      setDecisions((prev) => ({ ...prev, [id]: { action: 'accepted' } }));
-    } catch (error) {
-      console.error('Failed to accept task:', error);
-      alert('Failed to accept task. Please try again.');
-    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { onRemainingChange?.(remaining); }, [remaining]);
+
+  function handleAccept(id: string) {
+    setDecisions((prev) => ({ ...prev, [id]: { action: 'accepted' } }));
+    apiClient.acceptTask(id, 'User confirmed', '').catch(() => {});
   }
 
   function handleEdit(id: string, data: { title: string; deadline?: string }) {
     setDecisions((prev) => ({ ...prev, [id]: { action: 'edited', ...data } }));
+    apiClient.patchTask(id, { title: data.title, deadline: data.deadline }).catch(() => {});
   }
 
   function handleRequestReject(id: string) {
     setRejectModal({ candidateId: id, reason: '' });
   }
 
-  async function handleRejectConfirm() {
+  function handleRejectConfirm() {
     if (!rejectModal) return;
-    try {
-      await apiClient.rejectTask(rejectModal.candidateId, rejectModal.reason || 'No reason provided', '');
-      setDecisions((prev) => ({
-        ...prev,
-        [rejectModal.candidateId]: { action: 'rejected', reason: rejectModal.reason },
-      }));
-      setRejectModal(null);
-    } catch (error) {
-      console.error('Failed to reject task:', error);
-      alert('Failed to reject task. Please try again.');
-    }
+    const { candidateId, reason } = rejectModal;
+    setDecisions((prev) => ({
+      ...prev,
+      [candidateId]: { action: 'rejected', reason },
+    }));
+    setRejectModal(null);
+    apiClient.rejectTask(candidateId, reason || 'No reason provided', '').catch(() => {});
   }
 
   function handleAcceptAll() {
-    const batch: Record<string, Decision> = {};
     undecidedIds.forEach((id) => {
       const c = allCandidates.find((x) => x.id === id);
-      if (c && c.confidence >= 80) {
-        handleAccept(id);
-        batch[id] = { action: 'accepted' };
-      }
+      if (c && c.confidence >= 80) handleAccept(id);
     });
-    if (Object.keys(batch).length > 0) {
-      setDecisions((prev) => ({ ...prev, ...batch }));
-    }
   }
 
   async function handleSubmit() {

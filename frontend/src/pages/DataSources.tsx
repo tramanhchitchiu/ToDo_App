@@ -92,10 +92,12 @@ interface DataSourcesProps {
 export function DataSources({ addTrigger = 0 }: DataSourcesProps) {
   const [sources, setSources]     = useState<SourceConfig[]>(INITIAL_SOURCES);
   const [form, setForm]           = useState<FormState | null>(null);
-  const [running, setRunning]     = useState<Set<string>>(new Set());
-  const [removeId, setRemoveId]   = useState<string | null>(null);
-  const [showToken, setShowToken] = useState(false);
-  const prevTrigger               = useRef(addTrigger);
+  const [running, setRunning]         = useState<Set<string>>(new Set());
+  const [removeId, setRemoveId]       = useState<string | null>(null);
+  const [showToken, setShowToken]     = useState(false);
+  const [uploadSourceId, setUploadSourceId] = useState<string | null>(null);
+  const prevTrigger                   = useRef(addTrigger);
+  const fileInputRef                  = useRef<HTMLInputElement>(null);
 
   // Open "add" form when parent increments the trigger
   useEffect(() => {
@@ -170,6 +172,21 @@ export function DataSources({ addTrigger = 0 }: DataSourcesProps) {
     }, 2000);
   }
 
+  function handleUploadClick(id: string) {
+    setUploadSourceId(id);
+    fileInputRef.current?.click();
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !uploadSourceId) return;
+    setSources((prev) =>
+      prev.map((s) => s.id === uploadSourceId ? { ...s, lastFile: file.name, lastRun: 'Just now' } : s)
+    );
+    setUploadSourceId(null);
+    e.target.value = '';
+  }
+
   function handleRemoveConfirm() {
     if (!removeId) return;
     setSources((prev) => prev.filter((s) => s.id !== removeId));
@@ -188,6 +205,13 @@ export function DataSources({ addTrigger = 0 }: DataSourcesProps) {
 
   return (
     <>
+      <input
+        type="file"
+        ref={fileInputRef}
+        style={{ display: 'none' }}
+        accept=".docx,.pdf,.txt,.md"
+        onChange={handleFileChange}
+      />
       <div className={styles.layout}>
         {/* ── Left column: source list ── */}
         <div>
@@ -275,7 +299,7 @@ export function DataSources({ addTrigger = 0 }: DataSourcesProps) {
                       </button>
                     )}
                     {src.status === 'manual' && (
-                      <button className={styles.uploadBtn}>↑ Upload File</button>
+                      <button className={styles.uploadBtn} onClick={() => handleUploadClick(src.id)}>↑ Upload File</button>
                     )}
                     <button className={styles.removeBtn} onClick={() => setRemoveId(src.id)}>
                       🗑 Remove

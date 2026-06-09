@@ -9,7 +9,62 @@ import Notifications from './pages/Notifications';
 import AdminUsers from './pages/AdminUsers';
 import AppShell, { type Page } from './components/AppShell';
 import { apiClient } from './api/client';
-import type { TodoItem, TaskGroup } from './types/api.types';
+import type { TodoItem, TaskGroup, TaskCandidate } from './types/api.types';
+
+function groupTasksFromFlat(rawTasks: any[]): TaskGroup[] {
+  const labelMap = new Map<string, any[]>();
+  const ungrouped: any[] = [];
+  for (const t of rawTasks) {
+    if (t.group_label) {
+      if (!labelMap.has(t.group_label)) labelMap.set(t.group_label, []);
+      labelMap.get(t.group_label)!.push(t);
+    } else {
+      ungrouped.push(t);
+    }
+  }
+  const groups: TaskGroup[] = [];
+  let idx = 0;
+  labelMap.forEach((tasks, label) => {
+    groups.push({
+      id: `g${idx++}`,
+      context_label: label,
+      narrative_summary: `${tasks.length} task${tasks.length !== 1 ? 's' : ''} from this context.`,
+      candidates: tasks.map((t): TaskCandidate => ({
+        id: t.id,
+        title: t.title,
+        description: t.description,
+        source: t.source,
+        priority: t.priority,
+        confidence: t.confidence,
+        reason: t.reason,
+        deadline: t.deadline ? t.deadline.slice(0, 10) : undefined,
+        group_id: label,
+        invalidation_flag: false,
+        source_excerpt: t.source_excerpt,
+      })),
+    });
+  });
+  if (ungrouped.length > 0) {
+    groups.push({
+      id: `g${idx}`,
+      context_label: 'Other Tasks',
+      narrative_summary: `${ungrouped.length} ungrouped task${ungrouped.length !== 1 ? 's' : ''}.`,
+      candidates: ungrouped.map((t): TaskCandidate => ({
+        id: t.id,
+        title: t.title,
+        description: t.description,
+        source: t.source,
+        priority: t.priority,
+        confidence: t.confidence,
+        reason: t.reason,
+        deadline: t.deadline ? t.deadline.slice(0, 10) : undefined,
+        invalidation_flag: false,
+        source_excerpt: t.source_excerpt,
+      })),
+    });
+  }
+  return groups;
+}
 
 function App() {
   const [loggedIn, setLoggedIn]               = useState(false);
@@ -37,11 +92,10 @@ function App() {
     try {
       const result = await apiClient.runAgent();
       if (result.success) {
-        setAgentGroups(result.data.groups || []);
-        const pendingTasks = (result.data.groups || []).reduce(
-          (sum: number, g: TaskGroup) => sum + g.candidates.length,
-          0
-        );
+        const rawTasks = Array.isArray(result.data) ? result.data : (result.data.groups ? result.data.groups.flatMap((g: TaskGroup) => g.candidates) : []);
+        const groups = Array.isArray(result.data) ? groupTasksFromFlat(rawTasks) : (result.data.groups || []);
+        setAgentGroups(groups);
+        const pendingTasks = rawTasks.length;
         setPendingCount(pendingTasks);
         setPage('confirm');
       } else {
@@ -114,12 +168,14 @@ function App() {
       onToggleTheme={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
       onRunAgent={handleRunAgent}
       agentLoading={agentLoading}
+      confirmBadge={pendingCount}
     >
       {page === 'dashboard'      && <Dashboard onTaskClick={handleTaskClick} />}
       {page === 'confirm'        && (
         <ConfirmTasks
           groups={agentGroups}
           onSubmit={() => { setPendingCount(0); setAgentGroups(undefined); setPage('dashboard'); }}
+          onRemainingChange={(remaining) => setPendingCount(remaining)}
         />
       )}
       {page === 'briefing'       && <Briefing />}
@@ -127,7 +183,7 @@ function App() {
       {page === 'notifications'  && <Notifications />}
       {page === 'users'          && <AdminUsers />}
       {page === 'task-detail'    && selectedTask && (
-        <TaskDetail task={selectedTask} onBack={handleBackFromDetail} />
+        <TaskDetail task={selectedTask} onBack={handleBackFromDetail} onSave={(updated) => setSelectedTask(updated)} />
       )}
       {!['dashboard', 'confirm', 'briefing', 'sources', 'notifications', 'users', 'task-detail'].includes(page) && (
         <div style={{ color: 'var(--color-text-muted)', paddingTop: 48, textAlign: 'center' }}>

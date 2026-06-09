@@ -37,7 +37,11 @@ export function Login({ onLogin }: LoginProps) {
   };
 
   const handleSso = () => {
-    // SSO redirect placeholder
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      onLogin?.();
+    }, 600);
   };
 
   return (

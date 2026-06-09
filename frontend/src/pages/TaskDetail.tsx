@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from './TaskDetail.module.css';
+import { apiClient } from '../api/client';
 import type { TodoItem, TaskSource, TaskPriority, TaskStatus } from '../types/api.types';
 
 // ─── supplementary data not returned by the API ───────────────────────────────
@@ -193,9 +194,10 @@ function fmtDeadline(d: string): { text: string; urgent: boolean } {
 interface TaskDetailProps {
   task: TodoItem;
   onBack: () => void;
+  onSave?: (updated: TodoItem) => void;
 }
 
-export function TaskDetail({ task, onBack }: TaskDetailProps) {
+export function TaskDetail({ task, onBack, onSave }: TaskDetailProps) {
   const supp = SUPPLEMENTS[task.id] ?? DEFAULT_SUPPLEMENT;
 
   // Prefer API data; fall back to supplement
@@ -209,6 +211,8 @@ export function TaskDetail({ task, onBack }: TaskDetailProps) {
   const [deadline, setDeadline]     = useState(task.deadline ?? '');
 
   const [savedMsg, setSavedMsg]           = useState(false);
+  const [saving, setSaving]               = useState(false);
+  const [saveError, setSaveError]         = useState<string | null>(null);
   const [showInvalidation, setShowInvalid] = useState(supp.hasInvalidation ?? false);
   const [contextCollapsed, setCollapsed]   = useState(false);
 
@@ -229,9 +233,19 @@ export function TaskDetail({ task, onBack }: TaskDetailProps) {
     setCollapsed(false);
   }, [task.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  function handleSave() {
-    setSavedMsg(true);
-    setTimeout(() => setSavedMsg(false), 2500);
+  async function handleSave() {
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const updated = await apiClient.patchTask(task.id, { title, description, status, deadline: deadline || undefined });
+      onSave?.(updated);
+      setSavedMsg(true);
+      setTimeout(() => setSavedMsg(false), 2500);
+    } catch {
+      setSaveError('Failed to save. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   }
 
   function handleCancel() {
@@ -239,6 +253,21 @@ export function TaskDetail({ task, onBack }: TaskDetailProps) {
     setDesc(task.description || '');
     setStatus(task.status);
     setDeadline(task.deadline ?? '');
+    setSaveError(null);
+  }
+
+  async function handleConfirmValid() {
+    try {
+      await apiClient.acceptTask(task.id, 'Confirmed still valid');
+    } catch {
+      // best-effort — hide the warning regardless
+    } finally {
+      setShowInvalid(false);
+    }
+  }
+
+  function handleDismiss() {
+    setShowInvalid(false);
   }
 
   const src = SOURCE_STYLE[task.source];
@@ -316,11 +345,12 @@ export function TaskDetail({ task, onBack }: TaskDetailProps) {
         {/* Save / Cancel */}
         <div className={styles.formActions}>
           {savedMsg && <span className={styles.savedMsg}>✓ Changes saved</span>}
-          <button className={styles.cancelBtn} onClick={handleCancel} disabled={!isDirty}>
+          {saveError && <span style={{ color: '#EF4444', fontSize: 13 }}>{saveError}</span>}
+          <button className={styles.cancelBtn} onClick={handleCancel} disabled={!isDirty || saving}>
             Cancel
           </button>
-          <button className={styles.saveBtn} onClick={handleSave} disabled={!isDirty}>
-            Save Changes
+          <button className={styles.saveBtn} onClick={handleSave} disabled={!isDirty || saving}>
+            {saving ? 'Saving…' : 'Save Changes'}
           </button>
         </div>
       </div>
@@ -372,10 +402,10 @@ export function TaskDetail({ task, onBack }: TaskDetailProps) {
               </p>
             </div>
             <div className={styles.invalidActions}>
-              <button className={styles.confirmValidBtn} onClick={() => setShowInvalid(false)}>
+              <button className={styles.confirmValidBtn} onClick={handleConfirmValid}>
                 Confirm Still Valid
               </button>
-              <button className={styles.dismissBtn} onClick={() => setShowInvalid(false)}>
+              <button className={styles.dismissBtn} onClick={handleDismiss}>
                 Dismiss
               </button>
             </div>

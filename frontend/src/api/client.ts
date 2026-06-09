@@ -10,6 +10,12 @@ const STATUS_MAP: Record<string, TaskStatus> = {
   done:        'done',
 };
 
+const REVERSE_STATUS_MAP: Record<string, string> = {
+  todo:        'pending',
+  in_progress: 'accepted',
+  done:        'rejected',
+};
+
 function normalizeTask(raw: any): TodoItem {
   return {
     ...raw,
@@ -86,6 +92,19 @@ export const apiClient = {
   async getDailyBriefing(): Promise<DailyBriefingData> {
     const response = await axiosInstance.get('/daily-briefing');
     return response.data.data;
+  },
+
+  /**
+   * Update task fields (title, description, status, deadline)
+   */
+  async patchTask(taskId: string, data: { title?: string; description?: string; status?: TaskStatus; deadline?: string }) {
+    const body: Record<string, string> = {};
+    if (data.title      !== undefined) body.title       = data.title;
+    if (data.description !== undefined) body.description = data.description;
+    if (data.status     !== undefined) body.status      = REVERSE_STATUS_MAP[data.status] ?? data.status;
+    if (data.deadline   !== undefined) body.deadline    = data.deadline;
+    const response = await axiosInstance.patch(`/tasks/${taskId}`, body);
+    return normalizeTask(response.data.data);
   },
 
   /**

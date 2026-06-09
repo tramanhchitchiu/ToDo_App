@@ -22,6 +22,7 @@ interface AppShellProps {
   onToggleTheme: () => void;
   onRunAgent?: () => void;
   agentLoading?: boolean;
+  confirmBadge?: number;
 }
 
 const PAGE_LABELS: Record<Page, string> = {
@@ -34,7 +35,7 @@ const PAGE_LABELS: Record<Page, string> = {
   'task-detail': 'Task Detail',
 };
 
-export function AppShell({ activePage, onNavigate, onLogout, children, headerTitle, headerExtra, onBack, theme, onToggleTheme, onRunAgent, agentLoading }: AppShellProps) {
+export function AppShell({ activePage, onNavigate, onLogout, children, headerTitle, headerExtra, onBack, theme, onToggleTheme, onRunAgent, agentLoading, confirmBadge }: AppShellProps) {
   return (
     <>
       <aside className={styles.sidebar}>
@@ -44,7 +45,7 @@ export function AppShell({ activePage, onNavigate, onLogout, children, headerTit
 
         <nav className={styles.nav}>
           <NavItem id="dashboard" label="Dashboard" active={activePage === 'dashboard'} onNavigate={onNavigate} />
-          <NavItem id="confirm" label="Confirm Tasks" badge={5} active={activePage === 'confirm'} onNavigate={onNavigate} />
+          <NavItem id="confirm" label="Confirm Tasks" badge={confirmBadge && confirmBadge > 0 ? confirmBadge : undefined} active={activePage === 'confirm'} onNavigate={onNavigate} />
           <NavItem id="briefing" label="Daily Briefing" active={activePage === 'briefing'} onNavigate={onNavigate} />
           <div className={styles.navDivider} />
           <NavItem id="sources" label="Data Sources" active={activePage === 'sources'} onNavigate={onNavigate} />
@@ -56,7 +57,7 @@ export function AppShell({ activePage, onNavigate, onLogout, children, headerTit
         <div className={styles.userArea}>
           <div className={styles.avatar}>NL</div>
           <span className={styles.userName}>Nguyen T. Linh</span>
-          <button className={styles.settingsBtn} aria-label="Settings">⚙</button>
+          <button className={styles.settingsBtn} aria-label="Settings" onClick={() => onNavigate('users')}>⚙</button>
         </div>
       </aside>
 
