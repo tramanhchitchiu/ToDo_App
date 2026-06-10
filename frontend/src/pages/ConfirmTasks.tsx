@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import styles from './ConfirmTasks.module.css';
 import { TaskCard, type Decision } from '../components/TaskCard';
 import { apiClient } from '../api/client';
-import type { TaskCandidate, TaskGroup } from '../types/api.types';
+import type { TaskGroup, TodoItem } from '../types/api.types';
 
 // ─── mock data (Phase 1) ──────────────────────────────────────────────────────
 
@@ -172,13 +172,12 @@ const MOCK_GROUPS: TaskGroup[] = [
   },
 ];
 
-const ALL_CANDIDATES: TaskCandidate[] = MOCK_GROUPS.flatMap((g) => g.candidates);
 
 // ─── component ────────────────────────────────────────────────────────────────
 
 interface ConfirmTasksProps {
   groups?: TaskGroup[];
-  onSubmit?: () => void;
+  onSubmit?: (confirmed: TodoItem[]) => void;
   onRemainingChange?: (remaining: number) => void;
 }
 
@@ -236,9 +235,28 @@ export function ConfirmTasks({ groups = MOCK_GROUPS, onSubmit, onRemainingChange
   async function handleSubmit() {
     setSubmitting(true);
     try {
-      // All decisions already submitted individually
+      const confirmed: TodoItem[] = [];
+      for (const candidate of allCandidates) {
+        const decision = decisions[candidate.id];
+        if (!decision || decision.action === 'rejected') continue;
+        const title = decision.action === 'edited' ? decision.title : candidate.title;
+        const deadline = decision.action === 'edited' ? decision.deadline : candidate.deadline;
+        confirmed.push({
+          id: candidate.id,
+          title,
+          description: candidate.description,
+          source: candidate.source,
+          priority: candidate.priority,
+          status: 'todo',
+          confidence: candidate.confidence,
+          reason: candidate.reason,
+          deadline,
+          group_label: candidate.group_id,
+          source_excerpt: candidate.source_excerpt,
+        });
+      }
       setDecisions({});
-      onSubmit?.();
+      onSubmit?.(confirmed);
     } finally {
       setSubmitting(false);
     }

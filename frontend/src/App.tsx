@@ -78,8 +78,9 @@ function App() {
   // Agent pipeline state
   const [agentGroups, setAgentGroups]         = useState<TaskGroup[] | undefined>(undefined);
   const [agentLoading, setAgentLoading]       = useState(false);
-  const [agentError, setAgentError]           = useState<string | null>(null);
+  const [, setAgentError]                     = useState<string | null>(null);
   const [pendingCount, setPendingCount]       = useState(0);
+  const [injectedTasks, setInjectedTasks]     = useState<TodoItem[]>([]);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -170,11 +171,19 @@ function App() {
       agentLoading={agentLoading}
       confirmBadge={pendingCount}
     >
-      {page === 'dashboard'      && <Dashboard onTaskClick={handleTaskClick} />}
+      {page === 'dashboard'      && <Dashboard onTaskClick={handleTaskClick} injectedTasks={injectedTasks} />}
       {page === 'confirm'        && (
         <ConfirmTasks
           groups={agentGroups}
-          onSubmit={() => { setPendingCount(0); setAgentGroups(undefined); setPage('dashboard'); }}
+          onSubmit={(confirmed) => {
+            setInjectedTasks((prev) => {
+              const existingIds = new Set(prev.map((t) => t.id));
+              return [...prev, ...confirmed.filter((t) => !existingIds.has(t.id))];
+            });
+            setPendingCount(0);
+            setAgentGroups(undefined);
+            setPage('dashboard');
+          }}
           onRemainingChange={(remaining) => setPendingCount(remaining)}
         />
       )}

@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
-import type { TodoItem, TaskCandidate, TaskGroup, DailyBriefingData, TaskStatus } from '../types/api.types';
+import type { TodoItem, DailyBriefingData, TaskStatus } from '../types/api.types';
 
 const STATUS_MAP: Record<string, TaskStatus> = {
   pending:     'todo',
@@ -29,6 +29,32 @@ const API_BASE_URL = 'http://localhost:8000';
 // Use mock mode by default (for testing and when API token is exhausted)
 // To use real API: localStorage.setItem('useMockMode', 'false')
 const USE_MOCK_MODE = localStorage.getItem('useMockMode') !== 'false';
+
+function dl(offsetDays: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  return d.toISOString().slice(0, 10);
+}
+
+const MOCK_TASKS: TodoItem[] = [
+  { id: 'mock-1', title: 'Review PR #42 — OAuth2 refresh-token flow', source: 'jira',    priority: 'urgent', status: 'todo',        deadline: dl(0),  confidence: 92, reason: "Imperative assignment: 'please review before EOD'",          group_label: 'Project Alpha — Auth Module' },
+  { id: 'mock-2', title: 'Reply to client XYZ — delivery status update',  source: 'email',   priority: 'normal', status: 'in_progress', deadline: dl(1),  confidence: 85, reason: "'Need update by Friday' detected in email body" },
+  { id: 'mock-3', title: 'Update authentication documentation',            source: 'meeting', priority: 'low',    status: 'todo',        deadline: dl(3),  confidence: 74, reason: "Action item from sprint retro: 'Linh to update auth docs'",  group_label: 'Project Alpha — Auth Module' },
+  { id: 'mock-4', title: 'Fix bug #103 — null pointer in session middleware', source: 'jira', priority: 'urgent', status: 'todo',       deadline: dl(0),  confidence: 91, reason: 'High-priority regression blocking 3 downstream PRs',         group_label: 'Project Alpha — Auth Module' },
+  { id: 'mock-5', title: 'Review sprint 4 planning document',              source: 'teams',   priority: 'normal', status: 'done',        deadline: dl(-1), done_date: dl(-1), confidence: 79, reason: 'Review request with time constraint — standup at 10:00' },
+  { id: 'mock-6', title: 'Prepare demo slides for May release',            source: 'email',   priority: 'urgent', status: 'in_progress', deadline: dl(0),  confidence: 93, reason: "'Demo by EOD Friday' request from stakeholder",              group_label: 'Client XYZ — May Release' },
+  { id: 'mock-7', title: 'Update API versioning docs in Confluence',       source: 'jira',    priority: 'low',    status: 'done',        deadline: dl(-3), done_date: dl(-4), confidence: 68, reason: 'Linked to completed JIRA ticket ALPHA-38' },
+  { id: 'mock-8', title: 'Schedule platform migration kickoff with infra', source: 'meeting', priority: 'normal', status: 'todo',        deadline: dl(5),  confidence: 83, reason: 'Explicit action item assigned to PM in architecture review' },
+  { id: 'mock-9', title: 'Acknowledge high CPU alert on prod-worker-03',   source: 'slack',   priority: 'urgent', status: 'done',        deadline: dl(0),  done_date: dl(0), confidence: 99, reason: 'PagerDuty-level alert — unacknowledged 90 min' },
+];
+
+const MOCK_BRIEFING: DailyBriefingData = {
+  total_tasks: 9,
+  breakdown: { urgent: 4, normal: 3, low: 2 },
+  overload_risk: 'high',
+  estimated_effort_hours: 9,
+  recommendation: 'Three urgent tasks due today — start with the PR review, then the session middleware bug before EOD.',
+};
 
 // Create axios instance
 const axiosInstance: AxiosInstance = axios.create({
@@ -74,22 +100,24 @@ export const apiClient = {
    * Get all accepted tasks
    */
   async getTasks(filters?: { priority?: string; source?: string; status?: string }) {
+    if (USE_MOCK_MODE) {
+      let result = MOCK_TASKS;
+      if (filters?.priority) result = result.filter((t) => t.priority === filters.priority);
+      if (filters?.source)   result = result.filter((t) => t.source   === filters.source);
+      if (filters?.status)   result = result.filter((t) => t.status   === filters.status);
+      return result;
+    }
     const params = new URLSearchParams();
     if (filters?.priority) params.append('priority', filters.priority);
-    if (filters?.source) params.append('source', filters.source);
-    if (filters?.status) params.append('status', filters.status);
-
+    if (filters?.source)   params.append('source',   filters.source);
+    if (filters?.status)   params.append('status',   filters.status);
     const queryString = params.toString();
-    const url = queryString ? `/tasks?${queryString}` : '/tasks';
-
-    const response = await axiosInstance.get(url);
+    const response = await axiosInstance.get(queryString ? `/tasks?${queryString}` : '/tasks');
     return (response.data.data || []).map(normalizeTask);
   },
 
-  /**
-   * Get daily briefing
-   */
   async getDailyBriefing(): Promise<DailyBriefingData> {
+    if (USE_MOCK_MODE) return MOCK_BRIEFING;
     const response = await axiosInstance.get('/daily-briefing');
     return response.data.data;
   },

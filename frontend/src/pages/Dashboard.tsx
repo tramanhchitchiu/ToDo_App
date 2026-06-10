@@ -137,9 +137,10 @@ const PAGE_SIZE = 10;
 
 interface DashboardProps {
   onTaskClick?: (task: TodoItem) => void;
+  injectedTasks?: TodoItem[];
 }
 
-export function Dashboard({ onTaskClick }: DashboardProps) {
+export function Dashboard({ onTaskClick, injectedTasks }: DashboardProps) {
   const TODAY = new Date().toISOString().slice(0, 10);
   const TOMORROW   = addDays(TODAY, 1);
   const WEEK_END   = addDays(TODAY, 7);
@@ -181,8 +182,16 @@ export function Dashboard({ onTaskClick }: DashboardProps) {
     fetchTasks();
   }, []);
 
+  // Merge backend tasks with locally-confirmed tasks (injected from ConfirmTasks).
+  // Backend tasks take precedence — injected ones are only added if the ID is absent.
+  const allTasks = useMemo(() => {
+    if (!injectedTasks || injectedTasks.length === 0) return tasks;
+    const fetchedIds = new Set(tasks.map((t) => t.id));
+    return [...tasks, ...injectedTasks.filter((t) => !fetchedIds.has(t.id))];
+  }, [tasks, injectedTasks]);
+
   const filtered = useMemo(() => {
-    return tasks.filter((t) => {
+    return allTasks.filter((t) => {
       if (sourceFilter !== 'all' && t.source !== sourceFilter) return false;
       if (statusFilter !== 'all' && t.status !== statusFilter) return false;
       if (priorityFilter !== 'all' && t.priority !== priorityFilter) return false;
@@ -222,19 +231,19 @@ export function Dashboard({ onTaskClick }: DashboardProps) {
 
       return true;
     });
-  }, [tasks, search, sourceFilter, statusFilter, priorityFilter, dueDateFilter, dueDateFrom, dueDateTo, doneDateFilter, doneDateFrom, doneDateTo, TODAY, TOMORROW, WEEK_END, WEEK_START, YESTERDAY]);
+  }, [allTasks, search, sourceFilter, statusFilter, priorityFilter, dueDateFilter, dueDateFrom, dueDateTo, doneDateFilter, doneDateFrom, doneDateTo, TODAY, TOMORROW, WEEK_END, WEEK_START, YESTERDAY]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   // summary stats
-  const total = tasks.length;
-  const dueToday = tasks.filter((t) => t.deadline === TODAY && t.status !== 'done').length;
-  const overdue = tasks.filter((t) => {
+  const total = allTasks.length;
+  const dueToday = allTasks.filter((t) => t.deadline === TODAY && t.status !== 'done').length;
+  const overdue = allTasks.filter((t) => {
     if (!t.deadline || t.status === 'done') return false;
     return new Date(t.deadline + 'T00:00:00') < new Date(TODAY + 'T00:00:00');
   }).length;
-  const done = tasks.filter((t) => t.status === 'done').length;
+  const done = allTasks.filter((t) => t.status === 'done').length;
 
   if (error) {
     return (
